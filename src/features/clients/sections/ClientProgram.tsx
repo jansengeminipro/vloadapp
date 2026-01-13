@@ -14,6 +14,7 @@ interface ClientProgramProps {
 }
 
 const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTemplates }) => {
+    const detailsRef = React.useRef<HTMLDivElement>(null);
     const { user } = useAuth();
     const { id } = useParams<{ id: string }>();
 
@@ -155,7 +156,7 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                     </h3>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-7 gap-2 md:gap-4">
+                <div className="flex flex-nowrap md:grid md:grid-cols-7 gap-3 md:gap-4 overflow-x-auto pb-4 md:pb-0 scrollbar-hide -mx-2 px-2 md:mx-0 md:px-0">
                     {WEEKDAYS.map((day) => {
                         const workoutsForDay = activeProgramWorkouts.filter(w =>
                             (client.activeProgram?.schedule?.[w.id] || []).includes(day.val)
@@ -165,46 +166,45 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                         const isPast = day.val < todayIndex;
                         const isSelected = selectedCalendarDay === day.val;
 
-                        // Check if completed (mock logic for now - comparing day index if we had dates)
-                        // Ideally we check if there's a completed session for this weekday in the current week window
-                        // For now we assume "Past" && "Scheduled" = Pending/Missed if not found.
-
                         return (
                             <div
                                 key={day.val}
-                                onClick={() => setSelectedCalendarDay(day.val)}
+                                onClick={() => {
+                                    setSelectedCalendarDay(day.val);
+                                    if (window.innerWidth < 1024) {
+                                        detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }
+                                }}
                                 className={`
-                                    relative rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden flex flex-col
+                                    relative flex-shrink-0 md:flex-shrink w-14 md:w-auto h-20 md:h-auto rounded-2xl md:rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden flex flex-col items-center md:items-stretch
                                     ${isToday
                                         ? 'bg-gradient-to-br from-primary-900/40 to-slate-900 border-primary-500/50 shadow-lg shadow-primary-900/10 ring-1 ring-primary-500/30'
                                         : isSelected
-                                            ? 'bg-slate-800 border-slate-600'
+                                            ? 'bg-slate-800 border-slate-500'
                                             : 'bg-slate-900/30 border-slate-800 hover:border-slate-700 hover:bg-slate-800/30'
                                     }
-                                    ${isPast ? 'opacity-60 grayscale-[0.5] hover:opacity-100 hover:grayscale-0' : ''}
-                                    ${isPast ? 'opacity-60 grayscale-[0.5] hover:opacity-100 hover:grayscale-0' : ''}
-                                    min-h-[140px] md:min-h-[180px]
+                                    ${isPast && !isToday ? 'opacity-50' : ''}
+                                    md:min-h-[180px]
                                 `}
                             >
-                                {/* Header */}
-                                <div className={`p-3 flex justify-between items-start ${isToday ? 'bg-primary-500/10' : 'bg-slate-950/30'}`}>
-                                    <div className="flex flex-col">
-                                        <span className={`text-[10px] font-bold uppercase tracking-wider ${isToday ? 'text-primary-400' : 'text-slate-500'}`}>
-                                            {day.label}
-                                        </span>
-                                        {isToday && <span className="text-[9px] font-black text-primary-500 bg-primary-500/10 px-1.5 py-0.5 rounded w-fit mt-0.5">HOJE</span>}
+                                {/* Header (Mobile Capsule / Desktop Box) */}
+                                <div className={`w-full p-2 md:p-3 flex md:justify-between flex-col md:flex-row items-center md:items-start ${isToday ? 'bg-primary-500/10' : 'bg-slate-950/30'}`}>
+                                    <span className={`text-[10px] font-black uppercase tracking-wider ${isToday ? 'text-primary-400' : 'text-slate-500'}`}>
+                                        {day.label.charAt(0)}<span className="hidden md:inline">{day.label.substring(1)}</span>
+                                    </span>
+                                    <div className="flex items-center gap-1 mt-1 md:mt-0">
+                                        {workoutsForDay.length > 0 && (
+                                            <div className={`w-1.5 h-1.5 rounded-full ${isToday ? 'bg-primary-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]' : 'bg-slate-600'}`}></div>
+                                        )}
                                     </div>
-                                    {workoutsForDay.length > 0 && (
-                                        <div className={`w-2 h-2 rounded-full ${isToday ? 'bg-primary-500 shadow-[0_0_8px_rgba(99,102,241,0.6)] animate-pulse' : 'bg-slate-600'}`}></div>
-                                    )}
                                 </div>
 
-                                {/* Content */}
-                                <div className="p-2 flex-1 flex flex-col gap-1.5 overflow-visible">
+                                {/* Content (Only Desktop) */}
+                                <div className="hidden md:flex p-2 flex-1 flex-col gap-1.5">
                                     {workoutsForDay.length > 0 ? (
                                         workoutsForDay.map((w, i) => (
                                             <div key={i} className={`
-                                                rounded p-1.5 text-[10px] md:text-xs font-semibold border leading-tight break-words
+                                                rounded p-1.5 text-[10px] font-semibold border leading-tight break-words
                                                 ${isToday
                                                     ? 'bg-primary-500/20 text-white border-primary-500/20'
                                                     : 'bg-slate-800 text-slate-300 border-slate-700'}
@@ -218,12 +218,17 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Mobile Selection Indicator */}
+                                {isSelected && (
+                                    <div className="md:hidden absolute bottom-2 w-1.5 h-1.5 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
+                                )}
                             </div>
                         );
                     })}
                 </div>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-6" ref={detailsRef}>
                 <div className="min-h-[220px] bg-slate-900/40 border border-slate-800/50 rounded-3xl p-6 md:p-8 relative overflow-hidden">
                     {/* Status Strip */}
                     <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary-500 to-transparent"></div>
