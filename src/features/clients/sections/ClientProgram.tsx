@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutTemplate, Edit2, Calendar, Target, Dumbbell, ChevronUp, ChevronDown, Play, Search, Trash2, Plus, X, Shuffle, Settings, ArrowRight, CornerDownRight } from 'lucide-react';
+import { LayoutTemplate, Edit2, Calendar, Target, Dumbbell, ChevronUp, ChevronDown, Play, Search, Trash2, Plus, X, Shuffle, Settings, ArrowRight } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { Client, WorkoutTemplate } from '@/shared/types';
 import { WEEKDAYS } from '../constants';
@@ -233,7 +233,7 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                     {/* Status Strip */}
                     <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary-500 to-transparent"></div>
 
-                    <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="mb-8">
                         <div>
                             <h4 className="text-white font-black text-2xl flex items-center gap-3">
                                 {WEEKDAYS.find(d => d.val === selectedCalendarDay)?.label}
@@ -241,19 +241,7 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                                     {(new Date().getDay() + 6) % 7 === selectedCalendarDay ? 'Foco de Hoje' : 'Planejamento'}
                                 </span>
                             </h4>
-                            <p className="text-slate-400 text-sm mt-1 flex items-center gap-2">
-                                <CornerDownRight size={14} className="text-primary-500" />
-                                Painel Tático de Execução
-                            </p>
                         </div>
-
-                        {activeProgramWorkouts.filter(w => (client.activeProgram?.schedule?.[w.id] || []).includes(selectedCalendarDay)).length > 0 && (
-                            <div className="flex gap-2">
-                                <button className="text-xs font-bold text-slate-400 hover:text-white px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors border border-slate-700 hover:border-slate-600 flex items-center gap-2">
-                                    <ArrowRight size={14} /> Mover para Amanhã
-                                </button>
-                            </div>
-                        )}
                     </div>
 
                     <div className="space-y-8">
