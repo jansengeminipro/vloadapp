@@ -303,26 +303,27 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                                             {/* Tactical Actions Grid */}
                                             <div className="flex flex-col sm:flex-row gap-3">
                                                 {/* Primary Action: Execute */}
+                                                {/* Primary Action: Execute */}
                                                 <Link
                                                     to={`/session/new?clientId=${client.id}&templateId=${w.id}`}
-                                                    className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white p-4 rounded-2xl flex items-center justify-between group/main transition-all shadow-lg shadow-emerald-900/30 border border-emerald-400/20 active:scale-[0.98]"
+                                                    className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white p-3 rounded-2xl flex items-center justify-between group/main transition-all shadow-lg shadow-emerald-900/30 border border-emerald-400/20 active:scale-[0.98]"
                                                 >
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md transition-transform group-hover/main:scale-110">
-                                                            <Play size={18} className="fill-current" />
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md transition-transform group-hover/main:scale-110">
+                                                            <Play size={16} className="fill-current" />
                                                         </div>
                                                         <div className="flex flex-col">
                                                             <span className="text-[10px] font-bold text-emerald-100/60 uppercase tracking-widest mb-0.5">Estratégia</span>
-                                                            <span className="text-sm md:text-base font-black tracking-wide">INICIAR TREINO</span>
+                                                            <span className="text-sm font-black tracking-wide">INICIAR TREINO</span>
                                                         </div>
                                                     </div>
-                                                    <ArrowRight size={20} className="text-emerald-200 opacity-60 group-hover/main:translate-x-1 group-hover/main:opacity-100 transition-all" />
+                                                    <ArrowRight size={18} className="text-emerald-200 opacity-60 group-hover/main:translate-x-1 group-hover/main:opacity-100 transition-all" />
                                                 </Link>
 
                                                 {/* Secondary Action: Adapt */}
                                                 <Link
                                                     to={`/session/new?clientId=${client.id}&templateId=${w.id}&mode=adapt`}
-                                                    className="sm:w-1/3 bg-slate-800/40 hover:bg-slate-800/80 border border-white/5 hover:border-amber-500/30 p-4 rounded-2xl flex flex-col justify-center gap-1 group/adapt transition-all active:scale-[0.98]"
+                                                    className="sm:w-1/3 bg-slate-800/40 hover:bg-slate-800/80 border border-white/5 hover:border-amber-500/30 p-3 rounded-2xl flex flex-col justify-center gap-1 group/adapt transition-all active:scale-[0.98]"
                                                 >
                                                     <span className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest">Ajuste Tático</span>
                                                     <div className="flex items-center justify-between">

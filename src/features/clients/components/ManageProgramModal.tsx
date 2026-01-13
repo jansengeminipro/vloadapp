@@ -134,9 +134,9 @@ const ManageProgramModal: React.FC<ManageProgramModalProps> = ({
                     </div>
 
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-800">
-                        <button onClick={onClose} className="text-slate-400 hover:text-white px-4 py-2 font-medium">Cancelar</button>
-                        <button onClick={handleSaveProgram} disabled={isSaving} className="bg-primary-600 hover:bg-primary-500 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-primary-900/20 disabled:opacity-50">
-                            {isSaving ? 'Salvando...' : 'Salvar Programa'}
+                        <button onClick={onClose} className="text-slate-400 hover:text-white px-4 py-2 font-medium text-sm">Cancelar</button>
+                        <button onClick={handleSaveProgram} disabled={isSaving} className="bg-primary-600 hover:bg-primary-500 text-white px-5 py-2 rounded-lg font-bold shadow-lg shadow-primary-900/20 disabled:opacity-50 text-sm h-10 flex items-center">
+                            {isSaving ? 'Salvando...' : 'Salvar'}
                         </button>
                     </div>
                 </div>
