@@ -292,7 +292,25 @@ const ClientAnalyticsInner: React.FC<ClientAnalyticsProps> = ({ sessions }) => {
                     <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto">
                         <div className="relative" ref={filterRef}><button onClick={() => setIsFilterOpen(!isFilterOpen)} className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-300"><Layers size={14} /> Músculos {isFilterOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button>
                             {isFilterOpen && (
-                                <div className="absolute top-full right-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-xl z-20 p-2"><input value={muscleSearchTerm} onChange={e => setMuscleSearchTerm(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-1 text-xs text-white mb-2" placeholder="Buscar..." /><div className="max-h-40 overflow-y-auto custom-scrollbar">{activeMuscleGroups.filter(m => m.toLowerCase().includes(muscleSearchTerm.toLowerCase())).filter(m => MUSCLE_COLORS[m]).map(m => (<button key={m} onClick={() => toggleMuscleVisibility(m)} className="w-full flex justify-between px-2 py-1 text-xs text-slate-400 hover:text-white"><div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: MUSCLE_COLORS[m] }}></div>{m}</div>{visibleMuscleGroups.includes(m) && <Check size={12} />}</button>))}</div><div className="border-t border-slate-800 mt-1 pt-1 flex items-center justify-between px-2"><button onClick={() => setVisibleMuscleGroups(activeMuscleGroups)} className="text-xs text-primary-400 hover:text-primary-300 py-1 font-medium">Todos</button><button onClick={() => setVisibleMuscleGroups([])} className="text-xs text-slate-400 hover:text-slate-300 py-1 font-medium">Nenhum</button></div></div>
+                                <>
+                                    <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setIsFilterOpen(false)} />
+                                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 p-4">
+                                        <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><Layers size={16} className="text-primary-500" /> Filtrar Músculos</h4>
+                                        <input value={muscleSearchTerm} onChange={e => setMuscleSearchTerm(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white mb-3" placeholder="Buscar..." />
+                                        <div className="max-h-64 overflow-y-auto custom-scrollbar space-y-1">
+                                            {activeMuscleGroups.filter(m => m.toLowerCase().includes(muscleSearchTerm.toLowerCase())).filter(m => MUSCLE_COLORS[m]).map(m => (
+                                                <button key={m} onClick={() => toggleMuscleVisibility(m)} className="w-full flex justify-between items-center px-3 py-2 text-xs text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-700">
+                                                    <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: MUSCLE_COLORS[m] }}></div><span className="font-medium">{m}</span></div>
+                                                    {visibleMuscleGroups.includes(m) && <Check size={14} className="text-emerald-500" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="border-t border-slate-800 mt-3 pt-3 flex items-center justify-between gap-2">
+                                            <button onClick={() => setVisibleMuscleGroups(activeMuscleGroups)} className="flex-1 bg-slate-800 hover:bg-slate-700 text-xs text-white py-2 rounded-lg font-bold transition-colors">Todos</button>
+                                            <button onClick={() => setVisibleMuscleGroups([])} className="flex-1 bg-slate-800 hover:bg-slate-700 text-xs text-white py-2 rounded-lg font-bold transition-colors">Nenhum</button>
+                                        </div>
+                                    </div>
+                                </>
                             )}
                         </div>
                         <div className="flex bg-slate-900 rounded-lg border border-slate-700 p-1"><button onClick={() => setVolumeCalculation('sets')} className={`px-3 py-1 text-xs font-bold rounded ${volumeCalculation === 'sets' ? 'bg-slate-700 text-white' : 'text-slate-500'}`}>Séries</button><button onClick={() => setVolumeCalculation('load')} className={`px-3 py-1 text-xs font-bold rounded ${volumeCalculation === 'load' ? 'bg-slate-700 text-white' : 'text-slate-500'}`}>Carga</button></div>
@@ -350,7 +368,24 @@ const ClientAnalyticsInner: React.FC<ClientAnalyticsProps> = ({ sessions }) => {
             <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-4 mb-6"><div><h3 className="text-lg font-bold text-white flex items-center justify-center md:justify-start gap-2"><Dumbbell className="text-amber-500" size={20} /> Progressão de Carga</h3><p className="text-xs text-slate-500 mt-1 text-center md:text-left">Evolução de carga máxima.</p></div><div className="flex gap-2 justify-center w-full md:w-auto"><div className="relative" ref={progressionFilterRef}><button onClick={() => setIsProgressionFilterOpen(!isProgressionFilterOpen)} className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-300"><Filter size={14} /> Exercícios {isProgressionFilterOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button>
                     {isProgressionFilterOpen && (
-                        <div className="absolute top-full right-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-xl z-20 p-2"><input value={exerciseSearchTerm} onChange={e => setExerciseSearchTerm(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-1 text-xs text-white mb-2" placeholder="Buscar..." /><div className="max-h-40 overflow-y-auto custom-scrollbar">{availableExercises.filter(e => e.toLowerCase().includes(exerciseSearchTerm.toLowerCase())).map(e => (<button key={e} onClick={() => toggleProgressionExercise(e)} className="w-full flex justify-between px-2 py-2 text-xs text-slate-400 hover:bg-slate-800 rounded"><span className={`text-left ${selectedProgressionExercises.includes(e) ? 'text-white' : ''}`}>{e}</span>{selectedProgressionExercises.includes(e) && <Check size={12} className="text-primary-500 shrink-0" />}</button>))}</div><div className="border-t border-slate-800 mt-1 pt-1 px-2"><button onClick={() => setSelectedProgressionExercises([])} className="text-[10px] text-slate-400 w-full text-center hover:text-white">Nenhum</button></div></div>
+                        <>
+                            <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setIsProgressionFilterOpen(false)} />
+                            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 p-4">
+                                <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><Dumbbell size={16} className="text-amber-500" /> Filtrar Exercícios</h4>
+                                <input value={exerciseSearchTerm} onChange={e => setExerciseSearchTerm(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white mb-3" placeholder="Buscar exercícios..." />
+                                <div className="max-h-64 overflow-y-auto custom-scrollbar space-y-1">
+                                    {availableExercises.filter(e => e.toLowerCase().includes(exerciseSearchTerm.toLowerCase())).map(e => (
+                                        <button key={e} onClick={() => toggleProgressionExercise(e)} className="w-full flex justify-between items-center px-3 py-2 text-xs text-slate-400 hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-700">
+                                            <span className={`text-left font-medium ${selectedProgressionExercises.includes(e) ? 'text-white' : ''}`}>{e}</span>
+                                            {selectedProgressionExercises.includes(e) && <Check size={14} className="text-amber-500 shrink-0" />}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="border-t border-slate-800 mt-3 pt-3 px-2">
+                                    <button onClick={() => setSelectedProgressionExercises([])} className="w-full bg-slate-800 hover:bg-slate-700 text-xs text-white py-2 rounded-lg font-bold transition-colors">Limpar Seleção (Nenhum)</button>
+                                </div>
+                            </div>
+                        </>
                     )}
                 </div></div></div>
 
