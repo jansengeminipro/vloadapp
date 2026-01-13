@@ -292,6 +292,26 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                                                 </button>
                                             </div>
 
+                                            {/* Expanded Details */}
+                                            {isExpanded && (
+                                                <div className="bg-slate-900/40 rounded-2xl border border-slate-800/50 p-4 mb-6 animate-in slide-in-from-top-2">
+                                                    <div className="space-y-2">
+                                                        {w.exercises.map((ex, idx) => (
+                                                            <div key={idx} className="flex items-center gap-4 text-sm text-slate-300 p-2 hover:bg-slate-800/50 rounded-lg transition-colors border-b border-dashed border-slate-800/50 last:border-0">
+                                                                <div className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                                                    {idx + 1}
+                                                                </div>
+                                                                <span className="font-medium flex-1">{ex.name}</span>
+                                                                <div className="flex gap-2">
+                                                                    <span className="text-xs font-mono font-bold bg-slate-950 px-2 py-1 rounded text-slate-400">{ex.sets} séries</span>
+                                                                    <span className="text-xs font-mono font-bold bg-slate-950 px-2 py-1 rounded text-slate-400">{ex.targetReps} reps</span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {/* Tactical Actions Grid */}
                                             <div className="flex flex-col sm:flex-row gap-3">
                                                 {/* Primary Action: Execute */}
@@ -325,26 +345,6 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Expanded Details */}
-                                    {isExpanded && (
-                                        <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 animate-in slide-in-from-top-2">
-                                            <div className="space-y-2">
-                                                {w.exercises.map((ex, idx) => (
-                                                    <div key={idx} className="flex items-center gap-4 text-sm text-slate-300 p-2 hover:bg-slate-800/50 rounded-lg transition-colors border-b border-dashed border-slate-800/50 last:border-0">
-                                                        <div className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                                                            {idx + 1}
-                                                        </div>
-                                                        <span className="font-medium flex-1">{ex.name}</span>
-                                                        <div className="flex gap-2">
-                                                            <span className="text-xs font-mono font-bold bg-slate-950 px-2 py-1 rounded text-slate-400">{ex.sets} séries</span>
-                                                            <span className="text-xs font-mono font-bold bg-slate-950 px-2 py-1 rounded text-slate-400">{ex.targetReps} reps</span>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             );
                         })}
