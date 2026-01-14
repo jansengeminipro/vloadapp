@@ -6,6 +6,7 @@ import { useAuth } from '@/app/providers/AuthProvider';
 import { useClientProfileData } from '../hooks/useClientProfileData';
 
 import { useClientDashboardStats } from '../hooks/profile/useClientDashboardStats';
+import { updateClientProfile } from '@/services/clientService';
 
 // Sub-components
 import ClientHeader from '../components/ClientHeader';
@@ -48,9 +49,7 @@ const ClientProfile: React.FC = () => {
         completedSessions
     } = useClientDashboardStats(client, sessions, allTemplates);
 
-    import { updateClientProfile } from '@/services/clientService';
 
-    // ... (inside the component)
 
     // Profile Management
     const handleSaveProfile = async () => {
