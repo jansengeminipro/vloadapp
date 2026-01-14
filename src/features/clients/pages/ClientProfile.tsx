@@ -1,17 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { Client, MuscleGroup } from '@/shared/types';
-import { safeGetMonday, normalizeMuscleForChart } from '@/shared/utils/analytics';
-import { getExerciseByName } from '@/shared/data/exercises';
 import { supabase } from '@/shared/lib/supabase';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useClientProfileData } from '../hooks/useClientProfileData';
+
+import { useClientDashboardStats } from '../hooks/profile/useClientDashboardStats';
 
 // Sub-components
 import ClientHeader from '../components/ClientHeader';
 import ClientStats from '../components/ClientStats';
 import ClientProgram from '../sections/ClientProgram';
-import ClientAnalytics from '../sections/ClientAnalytics';
+import ClientAnalytics from '../sections/analytics';
 import ClientHistory from '../sections/ClientHistory';
 import ClientDashboard from '../sections/ClientDashboard';
 import AssessmentsTab from '../../assessments/pages/AssessmentsTab';
@@ -40,148 +40,26 @@ const ClientProfile: React.FC = () => {
     const [showEditProfileModal, setShowEditProfileModal] = useState(false);
     const [profileForm, setProfileForm] = useState<Partial<Client>>({});
 
-    // Stats Local State (Lifted for ClientStats)
-    const [progDistributionMetric, setProgDistributionMetric] = useState<'sets' | 'load'>('sets');
+    // Dashboard Stats Logic
+    const {
+        dashboardStats,
+        progDistributionMetric,
+        setProgDistributionMetric,
+        completedSessions
+    } = useClientDashboardStats(client, sessions, allTemplates);
 
+    import { updateClientProfile } from '@/services/clientService';
 
-    // Dashboard Stats Logic (Kept here to pass to ClientStats, could be extracted to hook)
-    const completedSessions = useMemo(() => {
-        return sessions.filter(s => s.status === 'completed');
-    }, [sessions]);
-
-    const activeProgramWorkouts = useMemo(() => {
-        if (!client?.activeProgram) return [];
-        return allTemplates.filter(t => client.activeProgram!.workoutIds.includes(t.id));
-    }, [client?.activeProgram, allTemplates]);
-
-    const dashboardStats = useMemo(() => {
-        if (!client?.activeProgram) return null;
-        const now = new Date();
-        const currentWeekStart = safeGetMonday(now);
-        const nextWeekStart = new Date(currentWeekStart);
-        nextWeekStart.setDate(nextWeekStart.getDate() + 7);
-
-        const lastWeekStart = new Date(currentWeekStart);
-        lastWeekStart.setDate(lastWeekStart.getDate() - 7);
-        const lastWeekEnd = new Date(currentWeekStart);
-
-        const mesoStart = new Date(client.activeProgram.startDate);
-        const mesoEnd = client.activeProgram.endDate ? new Date(client.activeProgram.endDate) : now;
-
-        // Process sessions once to avoid repeated Date object creation
-        const processedSessions = completedSessions.map(s => ({
-            ...s,
-            dateObj: new Date(s.date)
-        }));
-
-        const weekSessions = processedSessions.filter(s => s.dateObj >= currentWeekStart && s.dateObj < nextWeekStart);
-        const lastWeekSessions = processedSessions.filter(s => s.dateObj >= lastWeekStart && s.dateObj < lastWeekEnd);
-        const mesoSessions = processedSessions.filter(s => s.dateObj >= mesoStart && s.dateObj <= mesoEnd);
-
-        const schedule: Record<string, number[]> = client.activeProgram?.schedule || {};
-        const plannedWeeklySessions = Object.values(schedule).reduce((acc: number, days: any) => acc + (Array.isArray(days) ? days.length : 0), 0) || activeProgramWorkouts.length;
-
-        const weeksCount = Math.max(1, Math.ceil(Math.abs(mesoEnd.getTime() - mesoStart.getTime()) / (1000 * 60 * 60 * 24 * 7)));
-        const plannedMesocycleSessions = plannedWeeklySessions * weeksCount;
-
-        const plannedWeeklySets = activeProgramWorkouts.reduce((acc, t) => {
-            const daysCount = (schedule[t.id] || []).length || 1;
-            const setsInWorkout = t.exercises.reduce((exAcc, ex) => exAcc + ex.sets, 0);
-            return acc + (setsInWorkout * daysCount);
-        }, 0);
-
-        const currentWeeklySets = weekSessions.reduce((acc, s) => acc + s.totalSets, 0);
-
-        // Muscle Volume Distribution
-        const weeklyMuscleVolume: Record<string, number> = {};
-        const distMap: Record<string, number> = {};
-        const prevDistMap: Record<string, number> = {};
-
-        const processSessionForDist = (sessions: any[], targetMap: Record<string, number>, volumeMap?: Record<string, number>) => {
-            sessions.forEach(s => {
-                s.details.forEach((d: any) => {
-                    const sets = d.sets || 0;
-                    let distValue = 0;
-                    if (progDistributionMetric === 'sets') {
-                        distValue = sets;
-                    } else {
-                        distValue = d.setDetails && Array.isArray(d.setDetails)
-                            ? d.setDetails.reduce((acc: number, set: any) => acc + ((parseFloat(set.weight) || 0) * (parseFloat(set.reps) || 0)), 0)
-                            : (d.volumeLoad || 0);
-                    }
-
-                    const exerciseDef = getExerciseByName(d.name);
-                    if (exerciseDef) {
-                        const agonists = exerciseDef.agonists?.length > 0 ? exerciseDef.agonists : [d.muscleGroup];
-                        agonists.forEach(raw => {
-                            const m = normalizeMuscleForChart(raw);
-                            if (m) {
-                                if (volumeMap) volumeMap[m] = (volumeMap[m] || 0) + sets;
-                                targetMap[m] = (targetMap[m] || 0) + distValue;
-                            }
-                        });
-                        if (exerciseDef.synergists) {
-                            exerciseDef.synergists.forEach(raw => {
-                                const m = normalizeMuscleForChart(raw);
-                                if (m) {
-                                    if (volumeMap) volumeMap[m] = (volumeMap[m] || 0) + (sets * 0.5);
-                                    targetMap[m] = (targetMap[m] || 0) + (distValue * 0.5);
-                                }
-                            });
-                        }
-                    } else if (d.muscleGroup) {
-                        const m = normalizeMuscleForChart(d.muscleGroup);
-                        if (m) {
-                            if (volumeMap) volumeMap[m] = (volumeMap[m] || 0) + sets;
-                            targetMap[m] = (targetMap[m] || 0) + distValue;
-                        }
-                    }
-                });
-            });
-        };
-
-        processSessionForDist(weekSessions, distMap, weeklyMuscleVolume);
-        processSessionForDist(lastWeekSessions, prevDistMap);
-
-        const muscleDistributionData = Object.keys(distMap).map(m => ({
-            name: m,
-            value: distMap[m],
-            prevValue: prevDistMap[m] || 0
-        })).sort((a, b) => b.value - a.value);
-
-        return {
-            weekSessionsCount: weekSessions.length,
-            mesocycleSessionsCount: mesoSessions.length,
-            plannedWeeklySessions,
-            plannedMesocycleSessions,
-            currentWeeklySets,
-            plannedWeeklySets,
-            weeklyMuscleVolume,
-            muscleDistributionData
-        };
-    }, [completedSessions, activeProgramWorkouts, client, progDistributionMetric]);
+    // ... (inside the component)
 
     // Profile Management
     const handleSaveProfile = async () => {
         if (!client || !user) return;
         try {
-            const { error, status } = await supabase
-                .from('profiles')
-                .update({
-                    full_name: profileForm.name,
-                    birth_date: profileForm.birthDate,
-                    weight: profileForm.weight,
-                    height: profileForm.height,
-                    phone: profileForm.phone,
-                    gender: profileForm.gender
-                })
-                .eq('id', client.id);
+            await updateClientProfile(client.id, profileForm);
 
-            if (error) throw error;
-
-            // Note: status 204 or 200 with no error means the query executed, 
-            // but RLS might have prevented actual row updates if policies weren't met.
-            // Since we added the policy, this should now work.
+            // Note: services/clientService.updateClientProfile returns the data, 
+            // but we construct the optimistic update here anyway.
 
             const updated = {
                 ...client,

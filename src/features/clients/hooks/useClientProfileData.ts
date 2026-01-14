@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/shared/lib/supabase';
+import { useState, useEffect } from 'react';
 import { Client, SavedSession, WorkoutTemplate } from '@/shared/types';
 import { Assessment } from '@/features/assessments/domain/models';
+import { getClientProfile } from '@/services/clientService';
+import { getActiveProgram, getCoachTemplates } from '@/services/programService';
+import { getClientSessions, getLatestAssessment } from '@/services/analyticsService';
 
 interface UseClientProfileDataReturn {
     client: Client | null;
@@ -28,24 +30,10 @@ export const useClientProfileData = (id?: string, userId?: string): UseClientPro
             setLoading(true);
             try {
                 // 1. Fetch Client Profile
-                const { data: profileData, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
-                if (profileError) throw profileError;
+                const profileData = await getClientProfile(id);
 
                 // 2. Fetch Active Program
-                const { data: programData, error: programError } = await supabase
-                    .from('client_programs')
-                    .select('*')
-                    .eq('client_id', id)
-                    .eq('is_active', true)
-                    .single();
-
-                // It's okay if no program exists
-                if (programError && programError.code !== 'PGRST116') console.error(programError);
+                const programData = await getActiveProgram(id);
 
                 const mappedClient: Client = {
                     id: profileData.id,
@@ -73,41 +61,12 @@ export const useClientProfileData = (id?: string, userId?: string): UseClientPro
                 setClient(mappedClient);
 
                 // 3. Fetch Sessions
-                const { data: sessionData, error: sessionError } = await supabase
-                    .from('workout_sessions')
-                    .select('*')
-                    .eq('student_id', id)
-                    .order('scheduled_date', { ascending: false });
-
-                if (sessionError) throw sessionError;
-
-                const mappedSessions: SavedSession[] = (sessionData || []).map((s: any) => ({
-                    id: s.id,
-                    clientId: s.student_id,
-                    templateId: s.template_id || 'unknown',
-                    templateName: s.name || 'Treino Avulso',
-                    date: s.scheduled_date || s.completed_at || s.created_at,
-                    durationSeconds: s.duration_minutes ? s.duration_minutes * 60 : 0,
-                    totalSets: (s.exercises || []).reduce((acc: number, ex: any) => acc + (ex.sets || 0), 0),
-                    volumeLoad: (s.exercises || []).reduce((acc: number, ex: any) => {
-                        const exVolume = (ex.setDetails || []).reduce((setAcc: number, set: any) =>
-                            setAcc + ((parseFloat(set.weight) || 0) * (parseFloat(set.reps) || 0)), 0);
-                        return acc + exVolume;
-                    }, 0),
-                    details: s.exercises || [],
-                    rpe: s.rpe,
-                    status: s.status
-                }));
+                const mappedSessions = await getClientSessions(id);
                 setSessions(mappedSessions);
 
                 // 4. Fetch Templates (All templates from this trainer)
                 if (userId) {
-                    const { data: templateData, error: templateError } = await supabase
-                        .from('workout_templates')
-                        .select('*')
-                        .eq('coach_id', userId);
-
-                    if (templateError) throw templateError;
+                    const templateData = await getCoachTemplates(userId);
 
                     if (templateData) {
                         const mappedTemplates: WorkoutTemplate[] = templateData.map((t: any) => ({
@@ -120,19 +79,8 @@ export const useClientProfileData = (id?: string, userId?: string): UseClientPro
                         setAllTemplates(mappedTemplates);
                     }
 
-                    // 5. Fetch Latest Assessment (all types, filtered by category in theory, but here by typical IDs)
-                    const { data: assessmentData, error: assessmentError } = await supabase
-                        .from('client_assessments')
-                        .select('*')
-                        .eq('client_id', id)
-                        .in('type', ['pollock3', 'pollock7', 'faulkner', 'guedes', 'bia', 'bmi', 'rce', 'rcq'])
-                        .order('date', { ascending: false })
-                        .limit(1)
-                        .single();
-
-                    if (assessmentError && assessmentError.code !== 'PGRST116') {
-                        // Silent fail for no assessment
-                    }
+                    // 5. Fetch Latest Assessment
+                    const assessmentData = await getLatestAssessment(id);
 
                     if (assessmentData) {
                         setLatestAssessment(assessmentData);
@@ -152,3 +100,4 @@ export const useClientProfileData = (id?: string, userId?: string): UseClientPro
 
     return { client, setClient, sessions, setSessions, allTemplates, latestAssessment, loading, error };
 };
+

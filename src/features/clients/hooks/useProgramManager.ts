@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Client, WorkoutTemplate } from '@/shared/types';
 import { ClientProgramForm } from '../types';
-import { saveClientProgram, deleteClientProgram } from '../services/programService';
+import { saveClientProgram, deleteClientProgram } from '@/services/programService';
 
 export const useProgramManager = (
     client: Client,

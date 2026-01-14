@@ -1,0 +1,89 @@
+import React from 'react';
+import {
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
+} from 'recharts';
+import { MUSCLE_COLORS } from '@/features/clients/constants';
+
+interface VolumeEvolutionChartProps {
+    data: any[];
+    activeMuscleGroups: string[];
+    visibleMuscleGroups: string[];
+}
+
+export const VolumeEvolutionChart: React.FC<VolumeEvolutionChartProps> = ({
+    data,
+    activeMuscleGroups,
+    visibleMuscleGroups
+}) => {
+    return (
+        <>
+            <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                        <XAxis
+                            dataKey="displayDate"
+                            stroke="#94a3b8"
+                            fontSize={10}
+                            tick={{ fontSize: 10 }}
+                            interval="preserveStartEnd"
+                            minTickGap={30}
+                        />
+                        <YAxis
+                            stroke="#94a3b8"
+                            fontSize={10}
+                            tick={{ fontSize: 10 }}
+                            width={35}
+                        />
+                        <RechartsTooltip
+                            cursor={{ stroke: '#334155', strokeWidth: 1 }}
+                            content={({ active, payload, label }) => {
+                                if (active && payload && payload.length) {
+                                    return (
+                                        <div className="bg-slate-900 border border-slate-700 p-2 rounded-xl shadow-2xl min-w-[150px] z-50">
+                                            <p className="text-[11px] font-bold text-white mb-1.5 pb-1.5 border-b border-slate-800 leading-none">{label}</p>
+                                            <div className="space-y-1">
+                                                {payload.map((entry: any) => (
+                                                    <div key={entry.name} className="flex items-center justify-between gap-3 text-[10px] leading-tight">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: entry.stroke }}></div>
+                                                            <span className="text-slate-300 truncate max-w-[100px]">{entry.name}</span>
+                                                        </div>
+                                                        <span className="font-mono font-bold text-white">{entry.value}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            }}
+                        />
+                        {activeMuscleGroups.map(m =>
+                            visibleMuscleGroups.includes(m) && (
+                                <Line
+                                    key={m}
+                                    type="monotone"
+                                    dataKey={m}
+                                    stroke={MUSCLE_COLORS[m]}
+                                    strokeWidth={2}
+                                    dot={{ r: 2 }}
+                                />
+                            )
+                        )}
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
+
+            {/* Legend */}
+            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 justify-center">
+                {activeMuscleGroups.filter(m => visibleMuscleGroups.includes(m)).map(m => (
+                    <div key={m} className="flex items-center gap-1.5 min-w-max">
+                        <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: MUSCLE_COLORS[m] }}></div>
+                        <span className="text-[10px] text-slate-300 font-medium leading-none">{m}</span>
+                    </div>
+                ))}
+            </div>
+        </>
+    );
+};

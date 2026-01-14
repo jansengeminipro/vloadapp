@@ -7,6 +7,8 @@ import { useProgramManager } from '../hooks/useProgramManager';
 import ManageProgramModal from '../components/ManageProgramModal';
 import { useAuth } from '@/app/providers/AuthProvider';
 
+import { useWeeklyProgram } from '../hooks/program/useWeeklyProgram';
+
 interface ClientProgramProps {
     client: Client;
     setClient: (client: Client) => void;
@@ -31,12 +33,17 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
         handleDeleteProgram
     } = useProgramManager(client, setClient, allTemplates, user, id!);
 
-
-
+    const {
+        selectedCalendarDay,
+        setSelectedCalendarDay,
+        expandedWorkoutId,
+        setExpandedWorkoutId,
+        programStats,
+        getWorkoutsForDay
+    } = useWeeklyProgram(client, activeProgramWorkouts);
 
     const [templateSearchTerm, setTemplateSearchTerm] = useState('');
-    const [selectedCalendarDay, setSelectedCalendarDay] = useState((new Date().getDay() + 6) % 7);
-    const [expandedWorkoutId, setExpandedWorkoutId] = useState<string | null>(null);
+
     if (!client.activeProgram) {
         return (
             <>
@@ -61,8 +68,6 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
             </>
         );
     }
-
-
 
     return (
         <div className="space-y-8 animate-in fade-in pb-10">
@@ -110,39 +115,28 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
 
                     {/* Structural Stats (DNA) */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-slate-700/50">
-                        {(() => {
-                            // Calculate stats on the fly
-                            const scheduledDays = Object.values(client.activeProgram.schedule || {}).flat();
-                            const uniqueDays = new Set(scheduledDays).size;
-                            const totalWeeklySets = activeProgramWorkouts.reduce((acc, w) => {
-                                const frequency = (client.activeProgram?.schedule?.[w.id] || []).length;
-                                const workoutSets = w.exercises.reduce((s, e) => s + e.sets, 0);
-                                return acc + (workoutSets * frequency);
-                            }, 0);
-
-                            return (
-                                <>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Frequência</span>
-                                        <span className="text-xl md:text-2xl font-black text-white">{uniqueDays}x <span className="text-sm text-slate-500 font-medium">/semana</span></span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Volume Planejado</span>
-                                        <span className="text-xl md:text-2xl font-black text-white">{totalWeeklySets} <span className="text-sm text-slate-500 font-medium">séries</span></span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Divisão</span>
-                                        <span className="text-xl md:text-2xl font-black text-white truncate">
-                                            {uniqueDays >= 5 ? 'Alto Volume' : uniqueDays === 3 ? 'Full Body' : 'Híbrido'}
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Status Microciclo</span>
-                                        <span className="text-xl md:text-2xl font-black text-emerald-400">Em Dia</span>
-                                    </div>
-                                </>
-                            );
-                        })()}
+                        {programStats && (
+                            <>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Frequência</span>
+                                    <span className="text-xl md:text-2xl font-black text-white">{programStats.uniqueDays}x <span className="text-sm text-slate-500 font-medium">/semana</span></span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Volume Planejado</span>
+                                    <span className="text-xl md:text-2xl font-black text-white">{programStats.totalWeeklySets} <span className="text-sm text-slate-500 font-medium">séries</span></span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Divisão</span>
+                                    <span className="text-xl md:text-2xl font-black text-white truncate">
+                                        {programStats.divisionType}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Status Microciclo</span>
+                                    <span className="text-xl md:text-2xl font-black text-emerald-400">{programStats.microCycleStatus}</span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
@@ -158,9 +152,7 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
 
                 <div className="flex flex-nowrap md:grid md:grid-cols-7 gap-3 md:gap-4 overflow-x-auto pb-4 md:pb-0 scrollbar-hide -mx-2 px-2 md:mx-0 md:px-0">
                     {WEEKDAYS.map((day) => {
-                        const workoutsForDay = activeProgramWorkouts.filter(w =>
-                            (client.activeProgram?.schedule?.[w.id] || []).includes(day.val)
-                        );
+                        const workoutsForDay = getWorkoutsForDay(day.val);
                         const todayIndex = (new Date().getDay() + 6) % 7; // Monday = 0
                         const isToday = todayIndex === day.val;
                         const isPast = day.val < todayIndex;
@@ -245,7 +237,7 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                     </div>
 
                     <div className="space-y-8">
-                        {activeProgramWorkouts.filter(w => (client.activeProgram?.schedule?.[w.id] || []).includes(selectedCalendarDay)).map(w => {
+                        {getWorkoutsForDay(selectedCalendarDay).map(w => {
                             const isExpanded = expandedWorkoutId === w.id;
                             return (
                                 <div key={`cal-${w.id}`} className="space-y-4">
@@ -338,7 +330,7 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                         })}
 
                         {/* Empty State */}
-                        {activeProgramWorkouts.filter(w => (client.activeProgram?.schedule?.[w.id] || []).includes(selectedCalendarDay)).length === 0 && (
+                        {getWorkoutsForDay(selectedCalendarDay).length === 0 && (
                             <div className="py-12 flex flex-col items-center justify-center text-center bg-slate-950/30 rounded-2xl border border-dashed border-slate-800 group hover:border-slate-700 transition-colors">
                                 <div className="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center mb-4 text-slate-600 group-hover:text-slate-400 group-hover:scale-110 transition-all">
                                     <Calendar size={32} />
@@ -370,7 +362,7 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             {activeProgramWorkouts.map(w => {
-                                const isScheduledToday = (client.activeProgram?.schedule?.[w.id] || []).includes(selectedCalendarDay);
+                                const isScheduledToday = getWorkoutsForDay(selectedCalendarDay).some(todayW => todayW.id === w.id);
                                 if (isScheduledToday) return null; // Don't show scheduled ones again
 
                                 return (
