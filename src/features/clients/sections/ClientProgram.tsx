@@ -303,32 +303,31 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                                             {/* Tactical Actions Grid */}
                                             <div className="flex flex-col sm:flex-row gap-3">
                                                 {/* Primary Action: Execute */}
-                                                {/* Primary Action: Execute */}
                                                 <Link
                                                     to={`/session/new?clientId=${client.id}&templateId=${w.id}`}
-                                                    className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white p-3 rounded-2xl flex items-center justify-between group/main transition-all shadow-lg shadow-emerald-900/30 border border-emerald-400/20 active:scale-[0.98]"
+                                                    className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white py-2 px-3 rounded-xl flex items-center justify-between group/main transition-all shadow-lg shadow-emerald-900/30 border border-emerald-400/20 active:scale-[0.98]"
                                                 >
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md transition-transform group-hover/main:scale-110">
-                                                            <Play size={16} className="fill-current" />
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-7 h-7 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md transition-transform group-hover/main:scale-110">
+                                                            <Play size={14} className="fill-current" />
                                                         </div>
                                                         <div className="flex flex-col">
-                                                            <span className="text-[10px] font-bold text-emerald-100/60 uppercase tracking-widest mb-0.5">Estratégia</span>
-                                                            <span className="text-sm font-black tracking-wide">INICIAR TREINO</span>
+                                                            <span className="text-[9px] font-bold text-emerald-100/60 uppercase tracking-widest mb-0.5 leading-none">Estratégia</span>
+                                                            <span className="text-xs font-black tracking-wide leading-none">INICIAR TREINO</span>
                                                         </div>
                                                     </div>
-                                                    <ArrowRight size={18} className="text-emerald-200 opacity-60 group-hover/main:translate-x-1 group-hover/main:opacity-100 transition-all" />
+                                                    <ArrowRight size={16} className="text-emerald-200 opacity-60 group-hover/main:translate-x-1 group-hover/main:opacity-100 transition-all" />
                                                 </Link>
 
                                                 {/* Secondary Action: Adapt */}
                                                 <Link
                                                     to={`/session/new?clientId=${client.id}&templateId=${w.id}&mode=adapt`}
-                                                    className="sm:w-1/3 bg-slate-800/40 hover:bg-slate-800/80 border border-white/5 hover:border-amber-500/30 p-3 rounded-2xl flex flex-col justify-center gap-1 group/adapt transition-all active:scale-[0.98]"
+                                                    className="sm:w-1/3 bg-slate-800/40 hover:bg-slate-800/80 border border-white/5 hover:border-amber-500/30 py-2 px-3 rounded-xl flex flex-col justify-center gap-0.5 group/adapt transition-all active:scale-[0.98]"
                                                 >
-                                                    <span className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest">Ajuste Tático</span>
+                                                    <span className="text-[9px] font-bold text-amber-500/80 uppercase tracking-widest leading-none">Ajuste Tático</span>
                                                     <div className="flex items-center justify-between">
-                                                        <span className="text-xs font-bold text-slate-300 group-hover/adapt:text-amber-500 transition-colors">Adaptar & Iniciar</span>
-                                                        <Settings size={14} className="text-slate-500 group-hover/adapt:text-amber-500 group-hover/adapt:rotate-90 transition-all duration-300" />
+                                                        <span className="text-[11px] font-bold text-slate-300 group-hover/adapt:text-amber-500 transition-colors leading-none">Adaptar & Iniciar</span>
+                                                        <Settings size={12} className="text-slate-500 group-hover/adapt:text-amber-500 group-hover/adapt:rotate-90 transition-all duration-300" />
                                                     </div>
                                                 </Link>
                                             </div>
@@ -359,59 +358,59 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
                         )}
                     </div>
 
-                </div>
+                    {/* Integrated Library Section */}
+                    <div className="pt-4">
+                        <div className="flex items-center gap-3 mb-6 px-2">
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
+                            <h4 className="text-slate-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+                                <Dumbbell size={14} /> Realizar outro treino?
+                            </h4>
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
+                        </div>
 
-                {/* Integrated Library Section */}
-                <div className="pt-4">
-                    <div className="flex items-center gap-3 mb-6 px-2">
-                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
-                        <h4 className="text-slate-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
-                            <Dumbbell size={14} /> Realizar outro treino?
-                        </h4>
-                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
-                    </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {activeProgramWorkouts.map(w => {
+                                const isScheduledToday = (client.activeProgram?.schedule?.[w.id] || []).includes(selectedCalendarDay);
+                                if (isScheduledToday) return null; // Don't show scheduled ones again
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {activeProgramWorkouts.map(w => {
-                            const isScheduledToday = (client.activeProgram?.schedule?.[w.id] || []).includes(selectedCalendarDay);
-                            if (isScheduledToday) return null; // Don't show scheduled ones again
-
-                            return (
-                                <Link
-                                    key={`other-${w.id}`}
-                                    to={`/session/new?clientId=${client.id}&templateId=${w.id}`}
-                                    className="group p-4 bg-slate-900/40 border border-slate-800/80 hover:border-primary-500/30 rounded-2xl flex flex-col justify-between transition-all hover:bg-slate-900/60"
-                                >
-                                    <div>
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div className="px-2 py-0.5 bg-slate-800/80 text-slate-500 rounded text-[9px] font-bold uppercase tracking-tighter">
-                                                {w.focus}
+                                return (
+                                    <Link
+                                        key={`other-${w.id}`}
+                                        to={`/session/new?clientId=${client.id}&templateId=${w.id}`}
+                                        className="group p-3 bg-slate-900/40 border border-slate-800/80 hover:border-primary-500/30 rounded-xl flex flex-col justify-between transition-all hover:bg-slate-900/60"
+                                    >
+                                        <div>
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="px-2 py-0.5 bg-slate-800/80 text-slate-500 rounded text-[9px] font-bold uppercase tracking-tighter">
+                                                    {w.focus}
+                                                </div>
+                                                <div className="text-slate-700 group-hover:text-primary-500/50 transition-colors">
+                                                    <Play size={12} />
+                                                </div>
                                             </div>
-                                            <div className="text-slate-700 group-hover:text-primary-500/50 transition-colors">
-                                                <Play size={14} />
-                                            </div>
+                                            <h5 className="font-bold text-slate-300 text-xs group-hover:text-white transition-colors line-clamp-1">{w.name}</h5>
+                                            <p className="text-[9px] text-slate-600 mt-0.5 font-medium">{w.exercises.length} exercícios</p>
                                         </div>
-                                        <h5 className="font-bold text-slate-300 text-sm group-hover:text-white transition-colors line-clamp-1">{w.name}</h5>
-                                        <p className="text-[10px] text-slate-600 mt-1 font-medium">{w.exercises.length} exercícios</p>
-                                    </div>
-                                </Link>
-                            );
-                        })}
+                                    </Link>
+                                );
+                            })}
+                        </div>
                     </div>
+
+                    {showManageModal && (
+                        <ManageProgramModal
+                            isOpen={showManageModal}
+                            onClose={() => setShowManageModal(false)}
+                            programForm={programForm}
+                            setProgramForm={setProgramForm}
+                            isSaving={isSaving}
+                            allTemplates={allTemplates}
+                            toggleDayInSchedule={toggleDayInSchedule}
+                            handleSaveProgram={handleSaveProgram}
+                        />
+                    )}
                 </div>
             </div>
-            {showManageModal && (
-                <ManageProgramModal
-                    isOpen={showManageModal}
-                    onClose={() => setShowManageModal(false)}
-                    programForm={programForm}
-                    setProgramForm={setProgramForm}
-                    isSaving={isSaving}
-                    allTemplates={allTemplates}
-                    toggleDayInSchedule={toggleDayInSchedule}
-                    handleSaveProgram={handleSaveProgram}
-                />
-            )}
         </div>
     );
 };
