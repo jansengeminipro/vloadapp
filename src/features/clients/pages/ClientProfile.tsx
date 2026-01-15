@@ -101,6 +101,7 @@ const ClientProfile: React.FC = () => {
                         progDistributionMetric={progDistributionMetric}
                         setProgDistributionMetric={setProgDistributionMetric}
                         client={client}
+                        activeProgramWorkouts={activeProgramWorkouts}
                     />
                 )}
 

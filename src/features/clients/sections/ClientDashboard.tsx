@@ -24,6 +24,7 @@ interface ClientDashboardProps {
     progDistributionMetric: 'sets' | 'load';
     setProgDistributionMetric: (metric: 'sets' | 'load') => void;
     client: Client;
+    activeProgramWorkouts: WorkoutTemplate[]; // Added to calculate planned volume split for radar
 }
 
 const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
@@ -33,7 +34,7 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
     completedSessions,
     progDistributionMetric,
     setProgDistributionMetric,
-    client
+    activeProgramWorkouts // passed prop
 }) => {
     // 1. Calculate Analytics Metrics (ACWR, Internal Load)
     const analyticsMetrics = useClientDashboardData(completedSessions);
@@ -45,6 +46,7 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
         latestAssessment,
         client,
         completedSessions,
+        activeProgramWorkouts // Pass to hook
     });
 
     if (!activeProgram || !dashboardStats) return null;

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { Client, SavedSession } from '@/shared/types';
+import { Client, SavedSession, WorkoutTemplate } from '@/shared/types';
 import { Assessment } from '@/features/assessments/domain/models';
+import { normalizeMuscleForChart } from '@/shared/utils/analytics';
 
 interface PerformanceScoreHookProps {
     dashboardStats: any;
@@ -8,18 +9,22 @@ interface PerformanceScoreHookProps {
     latestAssessment?: Assessment;
     client: Client | null;
     completedSessions: SavedSession[];
+    activeProgramWorkouts?: WorkoutTemplate[];
 }
 
 export const usePerformanceScore = ({
     dashboardStats,
     analyticsMetrics,
     client,
-    completedSessions
+    completedSessions,
+    activeProgramWorkouts
 }: PerformanceScoreHookProps) => {
     return useMemo(() => {
+        // Now 5 Axes: Consistency, Vol MMSS, Vol MMII, Evolution, Intensity
         const scores = [
             { subject: 'Consistência', A: 0, fullMark: 100 },
-            { subject: 'Simetria', A: 0, fullMark: 100 },
+            { subject: 'Vol. MMSS', A: 0, fullMark: 100 },
+            { subject: 'Vol. MMII', A: 0, fullMark: 100 },
             { subject: 'Evolução', A: 0, fullMark: 100 },
             { subject: 'Intensidade', A: 0, fullMark: 100 },
         ];
@@ -34,48 +39,65 @@ export const usePerformanceScore = ({
         if (consistencyScore > 100) consistencyScore = 100;
         scores[0].A = Math.round(consistencyScore);
 
-        // 2. SYMMETRY (Simetria Upper/Lower)
-        // Need to categorize muscles from dashboardStats.muscleDistributionData or similar
-        // dashboardStats.weeklyMuscleVolume is a Record<string, number> where string is muscle name
-        // We define Upper vs Lower muscles
+
+        // 2 & 3. VOLUME SPLIT (MMSS vs MMII)
+        // Calculate Planned Sets for Upper vs Lower
         const upperMuscles = ['Peitoral', 'Costas', 'Ombros', 'Tríceps', 'Bíceps', 'Trapézio', 'Antebraço'];
         const lowerMuscles = ['Quadríceps', 'Posteriores', 'Glúteos', 'Panturrilhas', 'Adutores', 'Abdutores'];
 
-        // We can use muscleDistributionData but we need it in 'sets' metric for cleaner symmetry check?
-        // Or weeklyMuscleVolume which is 'sets' based (from lines 61, 84, 100 in useClientDashboardStats)
-        const volumes = dashboardStats.weeklyMuscleVolume || {};
+        let plannedUpperSets = 0;
+        let plannedLowerSets = 0;
 
-        let upperVol = 0;
-        let lowerVol = 0;
+        if (activeProgramWorkouts && client?.activeProgram?.schedule) {
+            const schedule = client.activeProgram.schedule;
+            activeProgramWorkouts.forEach(t => {
+                const frequency = (schedule[t.id] || []).length || 0; // Days per week
+                if (frequency > 0) {
+                    t.exercises.forEach(ex => {
+                        const m = normalizeMuscleForChart(ex.muscleGroup as string) || ex.muscleGroup as string;
 
-        Object.keys(volumes).forEach(m => {
-            if (upperMuscles.includes(m)) upperVol += volumes[m];
-            if (lowerMuscles.includes(m)) lowerVol += volumes[m];
+                        if (upperMuscles.includes(m)) plannedUpperSets += (ex.sets * frequency);
+                        else if (lowerMuscles.includes(m)) plannedLowerSets += (ex.sets * frequency);
+                    });
+                }
+            });
+        }
+
+        // Calculate Actual Sets from dashboardStats.weeklyMuscleVolume
+        const actualVolumes = dashboardStats.weeklyMuscleVolume || {};
+        let actualUpperSets = 0;
+        let actualLowerSets = 0;
+
+        Object.keys(actualVolumes).forEach(m => {
+            if (upperMuscles.includes(m)) actualUpperSets += actualVolumes[m];
+            if (lowerMuscles.includes(m)) actualLowerSets += actualVolumes[m];
         });
 
-        let symScore = 0;
-        if (upperVol === 0 && lowerVol === 0) {
-            symScore = 0;
-        } else if (upperVol === 0 || lowerVol === 0) {
-            // Complete asymmetry (only trained one half)
-            symScore = 20;
-        } else {
-            const ratio = Math.min(upperVol, lowerVol) / Math.max(upperVol, lowerVol);
-            // Ratio 1.0 = 100pts
-            // Ratio 0.5 = 70pts
-            // Ratio < 0.3 = 30pts
-            if (ratio >= 0.7) symScore = 100;
-            else if (ratio < 0.3) symScore = 30;
-            else {
-                // Linear: 0.3->30, 0.7->100
-                symScore = 30 + ((ratio - 0.3) * (70 / 0.4));
-            }
+        // Score 2: Upper Body Adherence
+        let scoreMMSS = 0;
+        if (plannedUpperSets > 0) {
+            scoreMMSS = (actualUpperSets / plannedUpperSets) * 100;
+            if (scoreMMSS > 110) scoreMMSS = 110;
+            if (scoreMMSS > 100) scoreMMSS = 100;
+        } else if (actualUpperSets > 0) {
+            scoreMMSS = 100;
         }
-        if (isNaN(symScore)) symScore = 0;
-        scores[1].A = Math.round(symScore);
+        if (isNaN(scoreMMSS)) scoreMMSS = 0;
+        scores[1].A = Math.round(scoreMMSS);
+
+        // Score 3: Lower Body Adherence
+        let scoreMMII = 0;
+        if (plannedLowerSets > 0) {
+            scoreMMII = (actualLowerSets / plannedLowerSets) * 100;
+            if (scoreMMII > 100) scoreMMII = 100;
+        } else if (actualLowerSets > 0) {
+            scoreMMII = 100;
+        }
+        if (isNaN(scoreMMII)) scoreMMII = 0;
+        scores[2].A = Math.round(scoreMMII);
 
 
-        // 3. PROGRESS (Evolução / Taxa de Progresso)
+        // 4. PROGRESS (Evolução / Taxa de Progresso)
         // Compare Logic: Current week vs Previous occurences
         // Need to parse completedSessions manually
         /* 
@@ -115,16 +137,6 @@ export const usePerformanceScore = ({
                     }, 0);
                 }
 
-                // We want the LATEST best? Or All time best? 
-                // Usually "Previous Session" implies the most recent one before current.
-                // But simplified: Let's store the MOST RECENT historical e1RM.
-                // Since olderSessions is likely not sorted, we might need to handle dates if we want strict "prev session".
-                // Optimistic approach: Use the *best* recorded recently? Or just the last one?
-                // Plan said: "com sessão anterior".
-                // Let's rely on olderSessions being sorted desc or filtered meaningfully? 
-                // completedSessions usually comes from DB sorted by date.
-                // Let's assume sorted (Latest first).
-
                 if (!historyMap[name]) {
                     historyMap[name] = bestE1RM;
                 }
@@ -157,11 +169,6 @@ export const usePerformanceScore = ({
         if (comparisonsCount < 3) {
             // FALLBACK: Weekly Volume Load
             const currentLoad = dashboardStats.weeklyLoadSum || 0; // Careful: dashboardStats.weeklyLoadSum is Internal Load (UA)?
-            // dashboardStats usually has volume metrics?
-            // useClientDashboardStats returns currentWeeklySets, but not Load sum explicitly in dashboardStats object unless we added it?
-            // Ah, analyticsMetrics has `weeklyLoadSum` which is Internal Load (UA).
-            // We want Volume Load (kg).
-            // Let's calculate manually from thisWeekSessions vs lastWeek (approx).
             const thisWeekVol = thisWeekSessions.reduce((acc, s) => acc + (s.volumeLoad || 0), 0);
 
             // Get previous week calc
@@ -187,27 +194,17 @@ export const usePerformanceScore = ({
         }
 
         if (isNaN(progressScore)) progressScore = 0;
-        scores[2].A = Math.round(progressScore);
+        scores[3].A = Math.round(progressScore);
 
 
-        // 4. INTENSITY (Esforço / RPE)
-        // Average RPE of all sets in this week's sessions
-        // Requires session.details[].setDetails[].rir (or rpe?)
-        // The type Set has 'rir'. SavedSession has 'rpe' (session RPE).
-        // Let's use Session RPE first as it's cleaner, fallback to converted RIR if needed?
-        // Plan says: "Média de RPE de todas as séries".
-
+        // 5. INTENSITY (Esforço / RPE)
         let totalRPE = 0;
         let setCounts = 0;
 
         thisWeekSessions.forEach(s => {
-            // If we have granular set RIR/RPE
             s.details.forEach((d: any) => {
                 if (d.setDetails && Array.isArray(d.setDetails)) {
                     d.setDetails.forEach((set: any) => {
-                        // Convert RIR to RPE if RPE not present?
-                        // RPE = 10 - RIR. 
-                        // If we have 'rir', use it.
                         let val = 0;
                         if (set.rpe !== undefined) val = parseFloat(set.rpe);
                         else if (set.rir !== undefined) val = 10 - parseFloat(set.rir);
@@ -224,7 +221,6 @@ export const usePerformanceScore = ({
         let avgRPE = 0;
         if (setCounts > 0) avgRPE = totalRPE / setCounts;
         else {
-            // Fallback: Session RPE if available
             const sessionRPEs = thisWeekSessions.map(s => s.rpe).filter(r => r !== undefined && r > 0) as number[];
             if (sessionRPEs.length) {
                 avgRPE = sessionRPEs.reduce((a, b) => a + b, 0) / sessionRPEs.length;
@@ -239,14 +235,13 @@ export const usePerformanceScore = ({
             else if (avgRPE < 6.0) effortScore = 40; // Too easy
             else effortScore = 60; // 6-7 zone
         } else {
-            // No RPE data? Default to 0? Or Neutral?
             effortScore = 0;
         }
 
         if (isNaN(effortScore)) effortScore = 0;
-        scores[3].A = Math.round(effortScore);
+        scores[4].A = Math.round(effortScore);
 
         return scores;
 
-    }, [dashboardStats, analyticsMetrics, client, completedSessions]);
+    }, [dashboardStats, analyticsMetrics, client, completedSessions, activeProgramWorkouts]);
 };

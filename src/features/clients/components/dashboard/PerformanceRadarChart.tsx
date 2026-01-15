@@ -34,7 +34,8 @@ export const PerformanceRadarChart: React.FC<PerformanceRadarProps> = ({ data })
                         <h5 className="font-bold text-white mb-3 text-xs uppercase">Como ler este gráfico?</h5>
                         <ul className="space-y-2 text-[10px] text-slate-300">
                             <li><strong className="text-primary-400">Consistência:</strong> % de treinos realizados.</li>
-                            <li><strong className="text-primary-400">Simetria:</strong> Equilíbrio entre Superior/Inferior.</li>
+                            <li><strong className="text-primary-400">Vol. MMSS:</strong> Aderência ao volume previsto de Superiores.</li>
+                            <li><strong className="text-primary-400">Vol. MMII:</strong> Aderência ao volume previsto de Inferiores.</li>
                             <li><strong className="text-primary-400">Evolução:</strong> % de exercícios com progresso de carga (e1RM).</li>
                             <li><strong className="text-primary-400">Intensidade:</strong> Qualidade do esforço (Zona RPE 8-9.5).</li>
                         </ul>
@@ -88,7 +89,7 @@ export const PerformanceRadarChart: React.FC<PerformanceRadarProps> = ({ data })
                 </div>
                 {/* Calculate Average Score */}
                 <span className="text-sm font-bold text-white">
-                    {Math.round(data.reduce((a, b) => a + b.A, 0) / 4)} <span className="text-xs text-slate-500 font-normal">pts</span>
+                    {Math.round(data.reduce((a, b) => a + b.A, 0) / 5)} <span className="text-xs text-slate-500 font-normal">pts</span>
                 </span>
             </div>
         </div>
