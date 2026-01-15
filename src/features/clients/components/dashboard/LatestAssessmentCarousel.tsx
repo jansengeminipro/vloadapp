@@ -27,6 +27,14 @@ export const LatestAssessmentCarousel: React.FC<LatestAssessmentCarouselProps> =
     const cardioAssessment = assessmentsByType?.cardio;
     const strengthAssessment = assessmentsByType?.strength;
 
+    // Helper to format values safely
+    const safeVal = (val: any, suffix: string = ''): string => {
+        if (val === null || val === undefined) return '-';
+        if (typeof val === 'object') return '-'; // Prevent object rendering crash
+        if (typeof val === 'number') return `${val.toFixed(1).replace('.0', '')}${suffix}`;
+        return `${String(val)}${suffix}`;
+    };
+
     const slides: any[] = [];
 
     // --- 1. CARDIO SLIDE ---
@@ -47,9 +55,9 @@ export const LatestAssessmentCarousel: React.FC<LatestAssessmentCarouselProps> =
                 icon: Activity,
                 color: '#ef4444', // red-500
                 items: [
-                    { label: 'VO2 Máx', value: typeof vo2max === 'number' ? `${vo2max.toFixed(1)} ml/kg/min` : (vo2max || '-'), highlight: true },
-                    { label: 'Distância', value: distance ? `${distance} m` : '-' },
-                    { label: 'Protocolo', value: cardioAssessment.type ? cardioAssessment.type.toUpperCase() : '-' }
+                    { label: 'VO2 Máx', value: safeVal(vo2max, ' ml/kg/min'), highlight: true },
+                    { label: 'Distância', value: safeVal(distance, ' m') },
+                    { label: 'Protocolo', value: cardioAssessment.type ? String(cardioAssessment.type).toUpperCase() : '-' }
                 ]
             });
         }
@@ -67,6 +75,12 @@ export const LatestAssessmentCarousel: React.FC<LatestAssessmentCarouselProps> =
         const reps = data.repetitions || data.reps;
         const score = result.score;
 
+        // Determine what to show as main value
+        let mainValue = '-';
+        if (score !== undefined) mainValue = safeVal(score);
+        else if (load) mainValue = safeVal(load, ' kg');
+        else if (reps) mainValue = safeVal(reps, ' reps');
+
         slides.push({
             id: 'strength',
             title: 'Força & Resistência',
@@ -74,9 +88,9 @@ export const LatestAssessmentCarousel: React.FC<LatestAssessmentCarouselProps> =
             icon: Dumbbell,
             color: '#f59e0b', // amber-500
             items: [
-                { label: 'Resultado', value: score ? score : (load ? `${load} kg` : (reps ? `${reps} reps` : '-')), highlight: true },
-                { label: 'Classificação', value: result.classification || '-' },
-                { label: 'Teste', value: strengthAssessment.type ? strengthAssessment.type.replace('_', ' ').toUpperCase() : '-' }
+                { label: 'Resultado', value: mainValue, highlight: true },
+                { label: 'Classificação', value: result.classification ? String(result.classification) : '-' },
+                { label: 'Teste', value: strengthAssessment.type ? String(strengthAssessment.type).replace(/_/g, ' ').toUpperCase() : '-' }
             ]
         });
     }
@@ -99,9 +113,9 @@ export const LatestAssessmentCarousel: React.FC<LatestAssessmentCarouselProps> =
                 icon: Scale,
                 color: '#3b82f6', // blue-500
                 items: [
-                    { label: 'Gordura Corporal', value: bodyFat ? `${Number(bodyFat).toFixed(1)}%` : '-', highlight: true },
-                    { label: 'Peso Atual', value: weight ? `${weight} kg` : '-' },
-                    { label: 'Massa Magra', value: muscleMass ? `${Number(muscleMass).toFixed(1)} kg` : '-' }
+                    { label: 'Gordura Corporal', value: safeVal(bodyFat, '%'), highlight: true },
+                    { label: 'Peso Atual', value: safeVal(weight, ' kg') },
+                    { label: 'Massa Magra', value: safeVal(muscleMass, ' kg') }
                 ]
             });
         }
