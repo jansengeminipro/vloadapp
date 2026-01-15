@@ -48,16 +48,18 @@ export const usePerformanceScore = ({
         let plannedUpperSets = 0;
         let plannedLowerSets = 0;
 
-        if (activeProgramWorkouts && client?.activeProgram?.schedule) {
+        if (activeProgramWorkouts && Array.isArray(activeProgramWorkouts) && client?.activeProgram?.schedule) {
             const schedule = client.activeProgram.schedule;
             activeProgramWorkouts.forEach(t => {
+                if (!t || !t.id) return;
                 const frequency = (schedule[t.id] || []).length || 0; // Days per week
-                if (frequency > 0) {
+                if (frequency > 0 && t.exercises && Array.isArray(t.exercises)) {
                     t.exercises.forEach(ex => {
+                        if (!ex || !ex.muscleGroup) return;
                         const m = normalizeMuscleForChart(ex.muscleGroup as string) || ex.muscleGroup as string;
 
-                        if (upperMuscles.includes(m)) plannedUpperSets += (ex.sets * frequency);
-                        else if (lowerMuscles.includes(m)) plannedLowerSets += (ex.sets * frequency);
+                        if (upperMuscles.includes(m)) plannedUpperSets += ((ex.sets || 0) * frequency);
+                        else if (lowerMuscles.includes(m)) plannedLowerSets += ((ex.sets || 0) * frequency);
                     });
                 }
             });
@@ -98,80 +100,70 @@ export const usePerformanceScore = ({
 
 
         // 4. PROGRESS (Evolução / Taxa de Progresso)
-        // Compare Logic: Current week vs Previous occurences
-        // Need to parse completedSessions manually
-        /* 
-           Logic:
-           1. Filter sessions from last 7 days.
-           2. For each exercise in these sessions, find the LATEST previous session (before last 7 days).
-           3. Compare e1RM (Weight * (1 + 0.0333 * Reps)).
-           4. Count successes.
-           Fallback: If < 3 comparisons possible, use Total Volume Load (Current Week vs Previous Week).
-        */
+        // Check completedSessions
+        if (!completedSessions || !Array.isArray(completedSessions)) {
+            // Early return or just continue with 0
+        }
 
         const now = new Date();
         const startOfWeek = new Date(now);
         startOfWeek.setDate(now.getDate() - 7);
 
-        const thisWeekSessions = completedSessions.filter(s => new Date(s.date) >= startOfWeek);
-        const olderSessions = completedSessions.filter(s => new Date(s.date) < startOfWeek);
+        // Safe filters
+        const sessions = Array.isArray(completedSessions) ? completedSessions : [];
+        const thisWeekSessions = sessions.filter(s => new Date(s.date) >= startOfWeek);
+        const olderSessions = sessions.filter(s => new Date(s.date) < startOfWeek);
 
         let progressScore = 0;
         let comparisonsCount = 0;
         let successCount = 0;
 
-        // Map older sessions for fast lookup: { exerciseName: { maxE1RM: number, date: string } }
+        // Map older sessions
         const historyMap: Record<string, number> = {};
 
         olderSessions.forEach(s => {
-            s.details.forEach((d: any) => {
-                const name = d.name;
-                // Calculate max e1RM for this exercise in this session
-                let bestE1RM = 0;
-                if (d.setDetails && Array.isArray(d.setDetails)) {
-                    bestE1RM = d.setDetails.reduce((max: number, set: any) => {
-                        const w = parseFloat(set.weight) || 0;
-                        const r = parseFloat(set.reps) || 0;
-                        const e1rm = w * (1 + 0.0333 * r);
-                        return Math.max(max, e1rm);
-                    }, 0);
-                }
-
-                if (!historyMap[name]) {
-                    historyMap[name] = bestE1RM;
-                }
-            });
+            if (s.details && Array.isArray(s.details)) {
+                s.details.forEach((d: any) => {
+                    const name = d.name;
+                    let bestE1RM = 0;
+                    if (d.setDetails && Array.isArray(d.setDetails)) {
+                        bestE1RM = d.setDetails.reduce((max: number, set: any) => {
+                            const w = parseFloat(set.weight) || 0;
+                            const r = parseFloat(set.reps) || 0;
+                            const e1rm = w * (1 + 0.0333 * r);
+                            return Math.max(max, e1rm);
+                        }, 0);
+                    }
+                    if (!historyMap[name]) historyMap[name] = bestE1RM;
+                });
+            }
         });
 
         thisWeekSessions.forEach(s => {
-            s.details.forEach((d: any) => {
-                if (historyMap[d.name]) {
-                    // Check current best e1RM
-                    let currentBest = 0;
-                    if (d.setDetails && Array.isArray(d.setDetails)) {
-                        currentBest = d.setDetails.reduce((max: number, set: any) => {
-                            const w = parseFloat(set.weight) || 0;
-                            const r = parseFloat(set.reps) || 0;
-                            return Math.max(max, w * (1 + 0.0333 * r));
-                        }, 0);
-                    }
-
-                    if (currentBest > 0) {
-                        comparisonsCount++;
-                        if (currentBest > historyMap[d.name]) {
-                            successCount++;
+            if (s.details && Array.isArray(s.details)) {
+                s.details.forEach((d: any) => {
+                    if (historyMap[d.name]) {
+                        let currentBest = 0;
+                        if (d.setDetails && Array.isArray(d.setDetails)) {
+                            currentBest = d.setDetails.reduce((max: number, set: any) => {
+                                const w = parseFloat(set.weight) || 0;
+                                const r = parseFloat(set.reps) || 0;
+                                return Math.max(max, w * (1 + 0.0333 * r));
+                            }, 0);
+                        }
+                        if (currentBest > 0) {
+                            comparisonsCount++;
+                            if (currentBest > historyMap[d.name]) successCount++;
                         }
                     }
-                }
-            });
+                });
+            }
         });
 
         if (comparisonsCount < 3) {
-            // FALLBACK: Weekly Volume Load
-            const currentLoad = dashboardStats.weeklyLoadSum || 0; // Careful: dashboardStats.weeklyLoadSum is Internal Load (UA)?
+            // FALLBACK
             const thisWeekVol = thisWeekSessions.reduce((acc, s) => acc + (s.volumeLoad || 0), 0);
 
-            // Get previous week calc
             const startOfPrevWeek = new Date(startOfWeek);
             startOfPrevWeek.setDate(startOfPrevWeek.getDate() - 7);
             const prevWeekSessions = olderSessions.filter(s => {
@@ -182,11 +174,10 @@ export const usePerformanceScore = ({
 
             if (thisWeekVol > prevWeekVol && prevWeekVol > 0) progressScore = 100;
             else if (thisWeekVol === 0 && prevWeekVol === 0) progressScore = 0;
-            else if (thisWeekVol >= prevWeekVol * 0.9) progressScore = 75; // Maintenance
+            else if (thisWeekVol >= prevWeekVol * 0.9) progressScore = 75;
             else progressScore = 40;
 
         } else {
-            // MAIN LOGIC
             const ratio = successCount / comparisonsCount;
             if (ratio >= 0.6) progressScore = 100;
             else if (ratio >= 0.3) progressScore = 75;
@@ -202,20 +193,22 @@ export const usePerformanceScore = ({
         let setCounts = 0;
 
         thisWeekSessions.forEach(s => {
-            s.details.forEach((d: any) => {
-                if (d.setDetails && Array.isArray(d.setDetails)) {
-                    d.setDetails.forEach((set: any) => {
-                        let val = 0;
-                        if (set.rpe !== undefined) val = parseFloat(set.rpe);
-                        else if (set.rir !== undefined) val = 10 - parseFloat(set.rir);
+            if (s.details && Array.isArray(s.details)) {
+                s.details.forEach((d: any) => {
+                    if (d.setDetails && Array.isArray(d.setDetails)) {
+                        d.setDetails.forEach((set: any) => {
+                            let val = 0;
+                            if (set.rpe !== undefined) val = parseFloat(set.rpe);
+                            else if (set.rir !== undefined) val = 10 - parseFloat(set.rir);
 
-                        if (val > 0) {
-                            totalRPE += val;
-                            setCounts++;
-                        }
-                    });
-                }
-            });
+                            if (val > 0) {
+                                totalRPE += val;
+                                setCounts++;
+                            }
+                        });
+                    }
+                });
+            }
         });
 
         let avgRPE = 0;
@@ -231,9 +224,9 @@ export const usePerformanceScore = ({
         if (avgRPE > 0) {
             if (avgRPE >= 8.0 && avgRPE <= 9.5) effortScore = 100;
             else if (avgRPE >= 7.0 && avgRPE < 8.0) effortScore = 85;
-            else if (avgRPE > 9.5) effortScore = 70; // Too hard penalty
-            else if (avgRPE < 6.0) effortScore = 40; // Too easy
-            else effortScore = 60; // 6-7 zone
+            else if (avgRPE > 9.5) effortScore = 70;
+            else if (avgRPE < 6.0) effortScore = 40;
+            else effortScore = 60;
         } else {
             effortScore = 0;
         }

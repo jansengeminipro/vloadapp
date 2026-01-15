@@ -54,38 +54,37 @@ export const calculateACWRMetrics = (sessions: any[]): DailyLoadMetric[] => {
   const loadMap = new Map<string, { totalLoad: number; totalRir: number; setVolume: number }>();
 
   sessions.forEach(session => {
+    // Defensive check for session.date
+    if (!session || !session.date) return;
+
     const dateKey = getMidnight(new Date(session.date)).toISOString().split('T')[0];
 
     let sessionLoad = 0;
     let sessionRirSum = 0;
     let sessionSetCount = 0;
 
-    session.details.forEach((ex: any) => {
-      if (ex.setDetails) {
-        ex.setDetails.forEach((set: any) => {
-          const rir = parseFloat(set.rir);
-          const safeRIR = isNaN(rir) ? 0 : rir;
+    if (session.details && Array.isArray(session.details)) {
+      session.details.forEach((ex: any) => {
+        if (ex.setDetails && Array.isArray(ex.setDetails)) {
+          ex.setDetails.forEach((set: any) => {
+            const rir = parseFloat(set.rir);
+            const safeRIR = isNaN(rir) ? 0 : rir;
 
-          // RPE Based on RIR (RPE = 10 - RIR)
-          const rpe = Math.max(0, 10 - safeRIR);
-
-          // Internal Load = RPE * 1 (Set)
-          // We sum this up. Effectively: Session Load = AvgRPE * TotalSets, 
-          // but summing per set is more precise if RIR varies.
-          sessionLoad += rpe;
-
-          sessionRirSum += safeRIR;
-          sessionSetCount++;
-        });
-      } else {
-        // Fallback if no detailed set data (using session totals)
-        // Assuming RIR 2 as conservative default if missing
-        const sets = ex.sets || 0;
-        sessionLoad += (8 * sets);
-        sessionSetCount += sets;
-        sessionRirSum += (2 * sets);
-      }
-    });
+            // RPE Based on RIR (RPE = 10 - RIR)
+            const rpe = Math.max(0, 10 - safeRIR);
+            sessionLoad += rpe;
+            sessionRirSum += safeRIR;
+            sessionSetCount++;
+          });
+        } else {
+          // Fallback if no detailed set data (using session totals)
+          const sets = ex.sets || 0;
+          sessionLoad += (8 * sets);
+          sessionSetCount += sets;
+          sessionRirSum += (2 * sets);
+        }
+      });
+    }
 
     if (!loadMap.has(dateKey)) {
       loadMap.set(dateKey, { totalLoad: 0, totalRir: 0, setVolume: 0 });
@@ -98,11 +97,10 @@ export const calculateACWRMetrics = (sessions: any[]): DailyLoadMetric[] => {
   });
 
   // 2. Create continuous timeline (filling gaps with 0)
-  // Look back 28 days from the first session to allow Chronic Load to build up slightly, 
-  // or just start from first session and accept ramp-up. 
-  // For UI stability, we'll start from the earliest session provided.
-
   const sortedSessions = [...sessions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  if (sortedSessions.length === 0) return [];
+
   const startDate = getMidnight(new Date(sortedSessions[0].date));
   const endDate = getMidnight(new Date()); // Up to today
 
