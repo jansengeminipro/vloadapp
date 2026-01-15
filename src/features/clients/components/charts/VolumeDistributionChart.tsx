@@ -12,12 +12,11 @@ export const VolumeDistributionChart = React.memo(({ data, metric }: VolumeDistr
     const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
 
     return (
-        <div className="h-64 w-full touch-none select-none">
+        <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
-                    layout="vertical"
-                    margin={{ top: 0, left: 20, right: 30, bottom: 0 }}
+                    margin={{ top: 10, left: -20, right: 0, bottom: 0 }}
                     onMouseMove={(state: any) => {
                         if (state && state.activeTooltipIndex !== undefined) {
                             setActiveIndex(state.activeTooltipIndex);
@@ -37,9 +36,24 @@ export const VolumeDistributionChart = React.memo(({ data, metric }: VolumeDistr
                     onTouchEnd={() => setActiveIndex(null)}
                     onTouchCancel={() => setActiveIndex(null)}
                 >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
-                    <XAxis type="number" stroke="#94a3b8" fontSize={11} />
-                    <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} width={80} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                    <XAxis
+                        dataKey="name"
+                        type="category"
+                        stroke="#94a3b8"
+                        fontSize={10}
+                        tickLine={false}
+                        axisLine={false}
+                        interval={0}
+                        tickFormatter={(value) => value.slice(0, 3)}
+                    />
+                    <YAxis
+                        type="number"
+                        stroke="#94a3b8"
+                        fontSize={10}
+                        tickLine={false}
+                        axisLine={false}
+                    />
                     <RechartsTooltip
                         active={activeIndex !== null}
                         cursor={{ fill: '#334155', opacity: 0.2 }}
@@ -78,7 +92,7 @@ export const VolumeDistributionChart = React.memo(({ data, metric }: VolumeDistr
                             return null;
                         }}
                     />
-                    <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                    <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={32}>
                         {data.map((entry: any, index: number) => (
                             <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                         ))}
