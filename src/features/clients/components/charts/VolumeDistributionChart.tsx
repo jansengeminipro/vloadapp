@@ -9,14 +9,38 @@ interface VolumeDistributionChartProps {
 }
 
 export const VolumeDistributionChart = React.memo(({ data, metric }: VolumeDistributionChartProps) => {
+    const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+
     return (
-        <div className="h-64 w-full touch-none">
+        <div className="h-64 w-full touch-none select-none">
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} layout="vertical" margin={{ top: 0, left: 20, right: 30, bottom: 0 }}>
+                <BarChart
+                    data={data}
+                    layout="vertical"
+                    margin={{ top: 0, left: 20, right: 30, bottom: 0 }}
+                    onMouseMove={(state: any) => {
+                        if (state && state.activeTooltipIndex !== undefined) {
+                            setActiveIndex(state.activeTooltipIndex);
+                        }
+                    }}
+                    onMouseLeave={() => setActiveIndex(null)}
+                    onTouchStart={(state: any) => {
+                        if (state && state.activeTooltipIndex !== undefined) {
+                            setActiveIndex(state.activeTooltipIndex);
+                        }
+                    }}
+                    onTouchMove={(state: any) => {
+                        if (state && state.activeTooltipIndex !== undefined) {
+                            setActiveIndex(state.activeTooltipIndex);
+                        }
+                    }}
+                    onTouchEnd={() => setActiveIndex(null)}
+                >
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
                     <XAxis type="number" stroke="#94a3b8" fontSize={11} />
                     <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} width={80} />
                     <RechartsTooltip
+                        active={activeIndex !== null}
                         cursor={{ fill: '#334155', opacity: 0.2 }}
                         content={({ active, payload, label }) => {
                             if (active && payload && payload.length) {

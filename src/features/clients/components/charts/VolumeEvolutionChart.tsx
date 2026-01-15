@@ -15,11 +15,33 @@ export const VolumeEvolutionChart: React.FC<VolumeEvolutionChartProps> = ({
     activeMuscleGroups,
     visibleMuscleGroups
 }) => {
+    const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+
     return (
         <>
-            <div className="h-64 w-full">
+            <div className="h-64 w-full touch-none select-none">
                 <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <LineChart
+                        data={data}
+                        margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                        onMouseMove={(state: any) => {
+                            if (state && state.activeTooltipIndex !== undefined) {
+                                setActiveIndex(state.activeTooltipIndex);
+                            }
+                        }}
+                        onMouseLeave={() => setActiveIndex(null)}
+                        onTouchStart={(state: any) => {
+                            if (state && state.activeTooltipIndex !== undefined) {
+                                setActiveIndex(state.activeTooltipIndex);
+                            }
+                        }}
+                        onTouchMove={(state: any) => {
+                            if (state && state.activeTooltipIndex !== undefined) {
+                                setActiveIndex(state.activeTooltipIndex);
+                            }
+                        }}
+                        onTouchEnd={() => setActiveIndex(null)}
+                    >
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                         <XAxis
                             dataKey="displayDate"
@@ -36,11 +58,12 @@ export const VolumeEvolutionChart: React.FC<VolumeEvolutionChartProps> = ({
                             width={35}
                         />
                         <RechartsTooltip
+                            active={activeIndex !== null}
                             cursor={{ stroke: '#334155', strokeWidth: 1 }}
                             content={({ active, payload, label }) => {
                                 if (active && payload && payload.length) {
                                     return (
-                                        <div className="bg-slate-900 border border-slate-700 p-2 rounded-xl shadow-2xl min-w-[150px] z-50">
+                                        <div className="bg-slate-900 border border-slate-700 p-2 rounded-xl shadow-2xl min-w-[150px] z-50 pointer-events-none">
                                             <p className="text-[11px] font-bold text-white mb-1.5 pb-1.5 border-b border-slate-800 leading-none">{label}</p>
                                             <div className="space-y-1">
                                                 {payload.map((entry: any) => (

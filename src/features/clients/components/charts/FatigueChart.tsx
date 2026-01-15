@@ -11,10 +11,33 @@ interface FatigueChartProps {
 export const FatigueChart: React.FC<FatigueChartProps> = ({
     data
 }) => {
+    const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+
     return (
-        <div className="h-64 w-full">
+        <div className="h-64 w-full touch-none select-none">
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} syncId="rirMetrics" margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <BarChart
+                    data={data}
+                    syncId="rirMetrics"
+                    margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                    onMouseMove={(state: any) => {
+                        if (state && state.activeTooltipIndex !== undefined) {
+                            setActiveIndex(state.activeTooltipIndex);
+                        }
+                    }}
+                    onMouseLeave={() => setActiveIndex(null)}
+                    onTouchStart={(state: any) => {
+                        if (state && state.activeTooltipIndex !== undefined) {
+                            setActiveIndex(state.activeTooltipIndex);
+                        }
+                    }}
+                    onTouchMove={(state: any) => {
+                        if (state && state.activeTooltipIndex !== undefined) {
+                            setActiveIndex(state.activeTooltipIndex);
+                        }
+                    }}
+                    onTouchEnd={() => setActiveIndex(null)}
+                >
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                     <XAxis
                         dataKey="date"
@@ -32,13 +55,14 @@ export const FatigueChart: React.FC<FatigueChartProps> = ({
                         width={35}
                     />
                     <RechartsTooltip
+                        active={activeIndex !== null}
                         cursor={{ fill: '#334155', opacity: 0.2 }}
                         content={({ active, payload, label }) => {
                             if (active && payload && payload.length) {
                                 const data = payload[0].payload;
                                 const zone = getInternalLoadZone(data.internalLoad);
                                 return (
-                                    <div className="bg-slate-900 border border-slate-700 p-3 rounded-xl shadow-2xl">
+                                    <div className="bg-slate-900 border border-slate-700 p-3 rounded-xl shadow-2xl pointer-events-none">
                                         <p className="text-sm font-bold text-white mb-2 pb-2 border-b border-slate-800">{label}</p>
                                         <div className="space-y-1 text-xs">
                                             <div className="flex justify-between gap-4">

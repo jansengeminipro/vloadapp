@@ -12,10 +12,32 @@ interface ACWRChartProps {
 export const ACWRChart: React.FC<ACWRChartProps> = ({
     data
 }) => {
+    const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+
     return (
-        <div className="h-80 w-full">
+        <div className="h-80 w-full touch-none select-none">
             <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <ComposedChart
+                    data={data}
+                    margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                    onMouseMove={(state: any) => {
+                        if (state && state.activeTooltipIndex !== undefined) {
+                            setActiveIndex(state.activeTooltipIndex);
+                        }
+                    }}
+                    onMouseLeave={() => setActiveIndex(null)}
+                    onTouchStart={(state: any) => {
+                        if (state && state.activeTooltipIndex !== undefined) {
+                            setActiveIndex(state.activeTooltipIndex);
+                        }
+                    }}
+                    onTouchMove={(state: any) => {
+                        if (state && state.activeTooltipIndex !== undefined) {
+                            setActiveIndex(state.activeTooltipIndex);
+                        }
+                    }}
+                    onTouchEnd={() => setActiveIndex(null)}
+                >
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                     <XAxis
                         dataKey="date"
@@ -45,13 +67,14 @@ export const ACWRChart: React.FC<ACWRChartProps> = ({
                     />
 
                     <RechartsTooltip
+                        active={activeIndex !== null}
                         content={({ active, payload, label }) => {
                             if (active && payload && payload.length) {
                                 const data = payload[0].payload;
                                 const status = getACWRStatus(data.acwr);
 
                                 return (
-                                    <div className="bg-slate-900 border border-slate-700 p-2 rounded-xl shadow-2xl min-w-[180px] max-w-[250px]">
+                                    <div className="bg-slate-900 border border-slate-700 p-2 rounded-xl shadow-2xl min-w-[180px] max-w-[250px] pointer-events-none">
                                         <p className="text-xs font-bold text-white mb-2 pb-2 border-b border-slate-800 flex items-center gap-2">
                                             <Calendar size={12} className="text-slate-400" /> {label}
                                         </p>
