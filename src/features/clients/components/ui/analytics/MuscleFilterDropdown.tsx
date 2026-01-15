@@ -49,7 +49,7 @@ export const MuscleFilterDropdown: React.FC<MuscleFilterDropdownProps> = ({
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden" onClick={() => setIsOpen(false)} />
-                    <div className="absolute top-full right-0 mt-2 md:mt-1 md:left-auto md:right-0 fixed md:absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0 w-[90vw] md:w-64 max-w-sm bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 p-4 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 p-4 animate-in fade-in zoom-in-95 duration-200 md:absolute md:top-full md:left-auto md:right-0 md:translate-x-0 md:translate-y-0 md:mt-2 md:w-64">
                         <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
                             <Layers size={16} className="text-primary-500" /> Filtrar Músculos
                         </h4>
