@@ -56,7 +56,7 @@ export const MuscleFilterDropdown: React.FC<MuscleFilterDropdownProps> = ({
                         <input
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white mb-3 focus:outline-none focus:border-primary-500"
+                            className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-base md:text-xs text-white mb-3 focus:outline-none focus:border-primary-500"
                             placeholder="Buscar..."
                             autoFocus
                         />

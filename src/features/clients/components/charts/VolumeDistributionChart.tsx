@@ -35,6 +35,7 @@ export const VolumeDistributionChart = React.memo(({ data, metric }: VolumeDistr
                         }
                     }}
                     onTouchEnd={() => setActiveIndex(null)}
+                    onTouchCancel={() => setActiveIndex(null)}
                 >
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
                     <XAxis type="number" stroke="#94a3b8" fontSize={11} />

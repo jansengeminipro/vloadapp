@@ -37,6 +37,7 @@ export const ACWRChart: React.FC<ACWRChartProps> = ({
                         }
                     }}
                     onTouchEnd={() => setActiveIndex(null)}
+                    onTouchCancel={() => setActiveIndex(null)}
                 >
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                     <XAxis
