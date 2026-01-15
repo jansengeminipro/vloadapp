@@ -58,7 +58,6 @@ export const MuscleFilterDropdown: React.FC<MuscleFilterDropdownProps> = ({
                             onChange={e => setSearchTerm(e.target.value)}
                             className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-base md:text-xs text-white mb-3 focus:outline-none focus:border-primary-500"
                             placeholder="Buscar..."
-                            autoFocus
                         />
                         <div className="max-h-64 overflow-y-auto custom-scrollbar space-y-1">
                             {activeMuscleGroups
