@@ -12,6 +12,7 @@ import { InfoTooltip } from '@/shared/components/ui/InfoTooltip';
 import { VolumeDistributionChart } from '../components/charts/VolumeDistributionChart';
 import { useClientDashboardData } from '../hooks/useClientDashboardData';
 import { DashboardStatsCards } from '../components/dashboard/DashboardStatsCards';
+import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel';
 
 interface ClientDashboardProps {
     activeProgram: Client['activeProgram'];
@@ -182,40 +183,9 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                     )}
                 </div>
 
-                {/* Program Summary */}
-                <div className="lg:col-span-2 bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <h4 className="text-sm font-bold text-white uppercase flex items-center gap-2 mb-6">
-                            <Ruler size={16} className="text-primary-500" /> Resumo do Planejamento
-                        </h4>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                                <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1">Nome do Programa</span>
-                                <span className="text-sm font-bold text-white block truncate" title={activeProgram.name}>{activeProgram.name}</span>
-                            </div>
-                            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                                <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1">Início</span>
-                                <span className="text-sm font-bold text-white block">{new Date(activeProgram.startDate).toLocaleDateString('pt-BR')}</span>
-                            </div>
-                            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-800">
-                                <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1">Término Previsto</span>
-                                <span className="text-sm font-bold text-white block">
-                                    {activeProgram.endDate ? new Date(activeProgram.endDate).toLocaleDateString('pt-BR') : 'Indeterminado'}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-900/30 rounded-xl p-4 border border-dashed border-slate-700 flex items-center justify-between gap-4">
-                        <div>
-                            <h5 className="text-white font-bold text-sm mb-1">Deseja revisar o cronograma?</h5>
-                            <p className="text-xs text-slate-400">Acesse a aba 'Programa' para gerenciar dias e exercícios.</p>
-                        </div>
-                        <div className="bg-slate-800 p-2 rounded-lg text-slate-500 group-hover:text-primary-400 transition-colors">
-                            <ArrowRight size={20} />
-                        </div>
-                    </div>
+                {/* Assessment Carousel (Replaces Program Summary) */}
+                <div className="lg:col-span-2">
+                    <LatestAssessmentCarousel assessment={latestAssessment} />
                 </div>
             </div>
         </div>
