@@ -33,11 +33,10 @@ export const PerformanceRadarChart: React.FC<PerformanceRadarProps> = ({ data })
                     <div className="absolute inset-0 z-10 bg-slate-800/95 backdrop-blur-sm rounded-lg p-4 flex flex-col justify-center animate-in fade-in zoom-in-95">
                         <h5 className="font-bold text-white mb-3 text-xs uppercase">Como ler este gráfico?</h5>
                         <ul className="space-y-2 text-[10px] text-slate-300">
-                            <li><strong className="text-primary-400">Consistência:</strong> % de treinos realizados vs planejados.</li>
-                            <li><strong className="text-primary-400">Volume:</strong> % de séries realizadas vs meta.</li>
-                            <li><strong className="text-primary-400">Composição:</strong> Nota baseada no % de Gordura (ideal: 10-15% H, 18-23% M).</li>
-                            <li><strong className="text-primary-400">Carga:</strong> Baseado no equilíbrio ACWR (0.8 - 1.3).</li>
-                            <li><strong className="text-primary-400">Intensidade:</strong> Baseado na zona de Carga Interna.</li>
+                            <li><strong className="text-primary-400">Consistência:</strong> % de treinos realizados.</li>
+                            <li><strong className="text-primary-400">Simetria:</strong> Equilíbrio entre Superior/Inferior.</li>
+                            <li><strong className="text-primary-400">Evolução:</strong> % de exercícios com progresso de carga (e1RM).</li>
+                            <li><strong className="text-primary-400">Intensidade:</strong> Qualidade do esforço (Zona RPE 8-9.5).</li>
                         </ul>
                         <button
                             onClick={() => setShowInfo(false)}
@@ -89,7 +88,7 @@ export const PerformanceRadarChart: React.FC<PerformanceRadarProps> = ({ data })
                 </div>
                 {/* Calculate Average Score */}
                 <span className="text-sm font-bold text-white">
-                    {Math.round(data.reduce((a, b) => a + b.A, 0) / 5)} <span className="text-xs text-slate-500 font-normal">pts</span>
+                    {Math.round(data.reduce((a, b) => a + b.A, 0) / 4)} <span className="text-xs text-slate-500 font-normal">pts</span>
                 </span>
             </div>
         </div>

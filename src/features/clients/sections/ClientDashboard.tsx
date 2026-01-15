@@ -43,7 +43,8 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
         dashboardStats,
         analyticsMetrics,
         latestAssessment,
-        client
+        client,
+        completedSessions,
     });
 
     if (!activeProgram || !dashboardStats) return null;
