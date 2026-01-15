@@ -10,7 +10,7 @@ interface VolumeDistributionChartProps {
 
 export const VolumeDistributionChart = React.memo(({ data, metric }: VolumeDistributionChartProps) => {
     return (
-        <div className="h-64 w-full">
+        <div className="h-64 w-full touch-none">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data} layout="vertical" margin={{ top: 0, left: 20, right: 30, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />

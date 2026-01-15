@@ -11,6 +11,7 @@ import { TrendIndicator } from '@/shared/components/analytics/TrendIndicator';
 import { InfoTooltip } from '@/shared/components/ui/InfoTooltip';
 import { VolumeDistributionChart } from '../components/charts/VolumeDistributionChart';
 import { useClientDashboardData } from '../hooks/useClientDashboardData';
+import { DashboardStatsCards } from '../components/dashboard/DashboardStatsCards';
 
 interface ClientDashboardProps {
     activeProgram: Client['activeProgram'];
@@ -58,87 +59,25 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
 
     return (
         <div className="animate-in fade-in slide-in-from-top-4 space-y-6 pb-12">
-            {/* Top Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-sm relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity"><CalendarDays size={48} className="text-white" /></div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">Treinos na Semana</h4>
-                    <div className="flex items-end gap-2 mb-2">
-                        <span className="text-3xl font-bold text-white">{dashboardStats.weekSessionsCount}</span>
-                        <span className="text-sm text-slate-500 mb-1">/ {dashboardStats.plannedWeeklySessions} Planejados</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <StatusBadge current={dashboardStats.weekSessionsCount} target={dashboardStats.plannedWeeklySessions} />
-                        {analyticsMetrics && (
-                            <TrendIndicator current={dashboardStats.weekSessionsCount} previous={analyticsMetrics.prevSessionsCount} type="points" />
-                        )}
-                    </div>
-                </div>
+            {/* Top Stats Grid - Premium Cards */}
+            <DashboardStatsCards
+                dashboardStats={dashboardStats}
+                analyticsMetrics={analyticsMetrics}
+                latestAssessment={latestAssessment}
+            />
 
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-sm relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity"><Layers size={48} className="text-white" /></div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">Volume Semanal (Séries)</h4>
-                    <div className="flex items-end gap-2 mb-2">
-                        <span className="text-3xl font-bold text-white">{dashboardStats.currentWeeklySets}</span>
-                        <span className="text-sm text-slate-500 mb-1">/ {dashboardStats.plannedWeeklySets} Meta</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <StatusBadge current={dashboardStats.currentWeeklySets} target={dashboardStats.plannedWeeklySets} />
-                        {analyticsMetrics && (
-                            <TrendIndicator current={dashboardStats.currentWeeklySets} previous={analyticsMetrics.prevSetsCount} type="percent" />
-                        )}
-                    </div>
-                </div>
-
-                {/* ACWR Metric */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-sm relative group">
-                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity overflow-hidden pointer-events-none"><TrendingUp size={48} className="text-white" /></div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-2 flex items-center">
-                        Status de Carga (ACWR)
-                        <InfoTooltip text="Mede o risco de lesão comparando o esforço da última semana com o que você aguentou no último mês. Ideal entre 0.8 e 1.3." />
-                    </h4>
-                    {analyticsMetrics ? (
-                        <>
-                            <div className="flex items-end gap-2 mb-2">
-                                <span className="text-3xl font-bold text-white">{analyticsMetrics.latest.acwr.toFixed(2)}</span>
-                                <span className="text-sm text-slate-500 mb-1">Ratio</span>
-                            </div>
-                            <span className="text-[10px] px-2 py-0.5 rounded font-bold border flex items-center gap-1 w-fit"
-                                style={{ backgroundColor: `${analyticsMetrics.status.color}15`, color: analyticsMetrics.status.color, borderColor: `${analyticsMetrics.status.color}30` }}>
-                                <HeartPulse size={10} /> {analyticsMetrics.status.label.toUpperCase()}
-                            </span>
-                        </>
-                    ) : (
-                        <span className="text-xs text-slate-500 italic">Calculando métricas...</span>
-                    )}
-                </div>
-
-                {/* Latest Anthropometry */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-sm relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity"><Scale size={48} className="text-white" /></div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">Peso & Composição</h4>
-                    {latestAssessment ? (
-                        <div>
-                            <div className="flex items-end gap-2 mb-1">
-                                <span className="text-3xl font-bold text-white">{getAssessmentValue('weight', 'kg')}</span>
-                                <span className="text-sm text-slate-500 mb-1">Atual</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-slate-400">
-                                <span>BF: <span className="text-white font-bold">{getAssessmentValue('bodyFat', '%')}</span></span>
-                                <span className="text-slate-600">•</span>
-                                <span>{new Date(latestAssessment.date).toLocaleDateString('pt-BR')}</span>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col h-full justify-center">
-                            <span className="text-sm text-slate-500 italic">Nenhuma avaliação</span>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Middle Section: Distribution vs Heatmap */}
+            {/* Middle Section: Heatmap vs Distribution */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Heatmap Section */}
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm flex flex-col items-center relative">
+                    <h4 className="text-sm font-bold text-white uppercase mb-4 w-full flex items-center gap-2">
+                        <Zap size={16} className="text-amber-500" /> Mapa de Calor Semanal
+                    </h4>
+                    <div className="scale-90 lg:scale-100">
+                        <BodyHeatmap muscleVolumes={dashboardStats.weeklyMuscleVolume} />
+                    </div>
+                </div>
+
                 {/* Volume Distribution Bar Chart */}
                 <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -158,16 +97,6 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                         </div>
                     </div>
                     <VolumeDistributionChart data={dashboardStats.muscleDistributionData} metric={progDistributionMetric} />
-                </div>
-
-                {/* Heatmap Section */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm flex flex-col items-center relative">
-                    <h4 className="text-sm font-bold text-white uppercase mb-4 w-full flex items-center gap-2">
-                        <Zap size={16} className="text-amber-500" /> Mapa de Calor Semanal
-                    </h4>
-                    <div className="scale-90 lg:scale-100">
-                        <BodyHeatmap muscleVolumes={dashboardStats.weeklyMuscleVolume} />
-                    </div>
                 </div>
             </div>
 
