@@ -14,7 +14,7 @@ export const FatigueChart: React.FC<FatigueChartProps> = ({
     const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
 
     return (
-        <div className="h-64 w-full touch-none select-none">
+        <div className="h-64 w-full select-none">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
