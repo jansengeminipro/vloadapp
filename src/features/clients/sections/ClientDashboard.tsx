@@ -9,9 +9,7 @@ import BodyHeatmap from '../components/BodyHeatmap';
 import { StatusBadge } from '@/shared/components/analytics/StatusBadge';
 import { TrendIndicator } from '@/shared/components/analytics/TrendIndicator';
 import { InfoTooltip } from '@/shared/components/ui/InfoTooltip';
-import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel'; // Keep if needed elsewhere, but we are replacing it here
-import { PerformanceRadarChart } from '../components/dashboard/PerformanceRadarChart';
-import { usePerformanceScore } from '../hooks/analytics/usePerformanceScore';
+import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel';
 
 interface ClientDashboardProps {
     activeProgram: Client['activeProgram'];
@@ -20,7 +18,6 @@ interface ClientDashboardProps {
     completedSessions: SavedSession[];
     progDistributionMetric: 'sets' | 'load';
     setProgDistributionMetric: (metric: 'sets' | 'load') => void;
-    client: Client; // Added client prop needed for scoring
 }
 
 const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
@@ -29,19 +26,10 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
     latestAssessment,
     completedSessions,
     progDistributionMetric,
-    setProgDistributionMetric,
-    client
+    setProgDistributionMetric
 }) => {
     // 1. Calculate Analytics Metrics (ACWR, Internal Load)
     const analyticsMetrics = useClientDashboardData(completedSessions);
-
-    // 2. Calculate Performance Scores (0-100)
-    const performanceScores = usePerformanceScore({
-        dashboardStats,
-        analyticsMetrics,
-        latestAssessment,
-        client
-    });
 
     if (!activeProgram || !dashboardStats) return null;
 
@@ -192,9 +180,9 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                     )}
                 </div>
 
-                {/* Performance Radar (Holistic View) */}
-                <div className="lg:col-span-2 h-full">
-                    <PerformanceRadarChart data={performanceScores} />
+                {/* Assessment Carousel (Replaces Program Summary) */}
+                <div className="lg:col-span-2">
+                    <LatestAssessmentCarousel assessment={latestAssessment} />
                 </div>
             </div>
         </div>
