@@ -20,6 +20,7 @@ interface ClientDashboardProps {
     activeProgram: Client['activeProgram'];
     dashboardStats: any;
     latestAssessment?: Assessment;
+    assessmentsByType?: { cardio?: Assessment | null, strength?: Assessment | null, bodyComp?: Assessment | null };
     completedSessions: SavedSession[];
     progDistributionMetric: 'sets' | 'load';
     setProgDistributionMetric: (metric: 'sets' | 'load') => void;
@@ -31,6 +32,7 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
     activeProgram,
     dashboardStats,
     latestAssessment,
+    assessmentsByType,
     completedSessions,
     progDistributionMetric,
     setProgDistributionMetric,
@@ -117,9 +119,9 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                 </div>
             </div>
 
-            {/* Bottom Row: Internal Load & Program Summary */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Internal Load Zone Dashboard */}
+            {/* Bottom Row: Internal Load & Program Summary & Carousel */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {/* Internal Load Zone Dashboard (1 col) */}
                 <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm">
                     <h4 className="text-sm font-bold text-white uppercase mb-4 w-full flex items-center gap-2">
                         <Activity size={16} className="text-cyan-400" /> Carga de Trabalho Recente
@@ -199,9 +201,14 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                     )}
                 </div>
 
-                {/* Performance Radar (Holistic View) */}
-                <div className="lg:col-span-2 h-full">
+                {/* Performance Radar (Holistic View) - 2 cols on Large, 2 cols on XL */}
+                <div className="lg:col-span-2 xl:col-span-2 h-full">
                     <PerformanceRadarChart data={performanceScores} />
+                </div>
+
+                {/* Latest Assessment Carousel - 1 col (wrapped on LG, independent on XL) */}
+                <div className="lg:col-span-3 xl:col-span-1 h-full">
+                    <LatestAssessmentCarousel assessmentsByType={assessmentsByType} />
                 </div>
             </div>
         </div>

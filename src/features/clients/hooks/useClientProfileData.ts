@@ -1,9 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Client, SavedSession, WorkoutTemplate } from '@/shared/types';
-import { Assessment } from '@/features/assessments/domain/models';
 import { getClientProfile } from '@/services/clientService';
 import { getActiveProgram, getCoachTemplates } from '@/services/programService';
-import { getClientSessions, getLatestAssessment } from '@/services/analyticsService';
+import { getClientSessions, getLatestAssessment, getLatestAssessmentsByCategory } from '@/services/analyticsService';
 
 interface UseClientProfileDataReturn {
     client: Client | null;
@@ -12,6 +9,7 @@ interface UseClientProfileDataReturn {
     setSessions: React.Dispatch<React.SetStateAction<SavedSession[]>>;
     allTemplates: WorkoutTemplate[];
     latestAssessment: Assessment | undefined;
+    assessmentsByType: { cardio?: Assessment | null, strength?: Assessment | null, bodyComp?: Assessment | null };
     loading: boolean;
     error: Error | null;
 }
@@ -21,6 +19,7 @@ export const useClientProfileData = (id?: string, userId?: string): UseClientPro
     const [sessions, setSessions] = useState<SavedSession[]>([]);
     const [allTemplates, setAllTemplates] = useState<WorkoutTemplate[]>([]);
     const [latestAssessment, setLatestAssessment] = useState<Assessment | undefined>(undefined);
+    const [assessmentsByType, setAssessmentsByType] = useState<{ cardio?: Assessment | null, strength?: Assessment | null, bodyComp?: Assessment | null }>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
@@ -79,11 +78,16 @@ export const useClientProfileData = (id?: string, userId?: string): UseClientPro
                         setAllTemplates(mappedTemplates);
                     }
 
-                    // 5. Fetch Latest Assessment
-                    const assessmentData = await getLatestAssessment(id);
+                    // 5. Fetch Latest Assessments (Categorized)
+                    const cats = await getLatestAssessmentsByCategory(id);
+                    setAssessmentsByType(cats);
 
-                    if (assessmentData) {
-                        setLatestAssessment(assessmentData);
+                    if (cats.bodyComp) {
+                        setLatestAssessment(cats.bodyComp);
+                    } else {
+                        // Fallback to generic fetch if needed, but bodyComp is what covers the dashboard needs (weight/fat)
+                        // We can also check generic getLatestAssessment if bodyComp failed
+                        // For now relies on categories
                     }
                 }
 
@@ -98,6 +102,6 @@ export const useClientProfileData = (id?: string, userId?: string): UseClientPro
         if (userId && id) loadData();
     }, [id, userId]);
 
-    return { client, setClient, sessions, setSessions, allTemplates, latestAssessment, loading, error };
+    return { client, setClient, sessions, setSessions, allTemplates, latestAssessment, assessmentsByType, loading, error };
 };
 

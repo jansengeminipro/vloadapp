@@ -22,14 +22,7 @@ const ClientProfile: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // Data Hook (Replaces previous local state & useEffect)
-    const {
-        client, setClient,
-        sessions, setSessions,
-        allTemplates,
-        latestAssessment,
-        loading
-    } = useClientProfileData(id, user?.id);
+
 
     const activeTab = (searchParams.get('tab') as 'dashboard' | 'program' | 'analytics' | 'history' | 'assessments') || 'dashboard';
 
@@ -40,6 +33,16 @@ const ClientProfile: React.FC = () => {
     // Global UI State
     const [showEditProfileModal, setShowEditProfileModal] = useState(false);
     const [profileForm, setProfileForm] = useState<Partial<Client>>({});
+
+    // Data Hook (Replaces previous local state & useEffect)
+    const {
+        client, setClient,
+        sessions, setSessions,
+        allTemplates,
+        latestAssessment,
+        loading,
+        assessmentsByType
+    } = useClientProfileData(id, user?.id);
 
     // Dashboard Stats Logic
     const {
@@ -95,13 +98,14 @@ const ClientProfile: React.FC = () => {
             <div className="min-h-[400px]">
                 {activeTab === 'dashboard' && dashboardStats && client.activeProgram && (
                     <ClientDashboard
+                        client={client}
                         activeProgram={client.activeProgram}
                         dashboardStats={dashboardStats}
                         latestAssessment={latestAssessment}
+                        assessmentsByType={assessmentsByType}
                         completedSessions={completedSessions}
                         progDistributionMetric={progDistributionMetric}
                         setProgDistributionMetric={setProgDistributionMetric}
-                        client={client}
                         activeProgramWorkouts={activeProgramWorkouts}
                     />
                 )}

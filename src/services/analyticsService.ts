@@ -49,3 +49,31 @@ export const getLatestAssessment = async (clientId: string) => {
     }
     return data as Assessment | null;
 };
+export const CARDIO_TYPES = ['cooper', 'rockport', 'bruce', 'balke_ware', 'mssrt', 'ruffier', 'tc6m', 'ymca', 'lunge_test', 'step_test_queens'];
+export const STRENGTH_TYPES = ['1rm', 'one_rm', 'pushups', 'situps', 'squats', 'plank', 'flexion', 'abdominal', 'arm_curl', 'chair_stand', 'dynamometry'];
+export const BODY_COMP_TYPES = ['pollock3', 'pollock7', 'faulkner', 'guedes', 'bia', 'bmi', 'rce', 'rcq', 'circumferences'];
+
+export const getLatestAssessmentsByCategory = async (clientId: string) => {
+    // We can run 3 queries in parallel for efficiency
+    const fetchLatest = async (types: string[]) => {
+        const { data, error } = await supabase
+            .from('client_assessments')
+            .select('*')
+            .eq('client_id', clientId)
+            .in('type', types)
+            .order('date', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (error && error.code !== 'PGRST116') return null;
+        return data as Assessment | null;
+    };
+
+    const [cardio, strength, bodyComp] = await Promise.all([
+        fetchLatest(CARDIO_TYPES),
+        fetchLatest(STRENGTH_TYPES),
+        fetchLatest(BODY_COMP_TYPES)
+    ]);
+
+    return { cardio, strength, bodyComp };
+};
