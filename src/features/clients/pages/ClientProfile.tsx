@@ -46,7 +46,8 @@ const ClientProfile: React.FC = () => {
         dashboardStats,
         progDistributionMetric,
         setProgDistributionMetric,
-        completedSessions
+        completedSessions,
+        activeProgramWorkouts
     } = useClientDashboardStats(client, sessions, allTemplates);
 
 
