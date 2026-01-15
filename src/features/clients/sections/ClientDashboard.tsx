@@ -3,7 +3,7 @@ import {
     CalendarDays, Activity, Layers, Zap, Scale, Ruler, ArrowRight,
     BarChart3, TrendingUp, HeartPulse
 } from 'lucide-react';
-import { Client, SavedSession } from '@/shared/types';
+import { Client, SavedSession, WorkoutTemplate } from '@/shared/types';
 import { Assessment } from '@/features/assessments/domain/models';
 import BodyHeatmap from '../components/BodyHeatmap';
 import { StatusBadge } from '@/shared/components/analytics/StatusBadge';
@@ -34,7 +34,8 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
     completedSessions,
     progDistributionMetric,
     setProgDistributionMetric,
-    activeProgramWorkouts // passed prop
+    client,
+    activeProgramWorkouts
 }) => {
     // 1. Calculate Analytics Metrics (ACWR, Internal Load)
     const analyticsMetrics = useClientDashboardData(completedSessions);
