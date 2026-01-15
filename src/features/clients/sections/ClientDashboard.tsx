@@ -12,7 +12,9 @@ import { InfoTooltip } from '@/shared/components/ui/InfoTooltip';
 import { VolumeDistributionChart } from '../components/charts/VolumeDistributionChart';
 import { useClientDashboardData } from '../hooks/useClientDashboardData';
 import { DashboardStatsCards } from '../components/dashboard/DashboardStatsCards';
-import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel';
+import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel'; // Keep just in case, but we use Radar
+import { PerformanceRadarChart } from '../components/dashboard/PerformanceRadarChart';
+import { usePerformanceScore } from '../hooks/analytics/usePerformanceScore';
 
 interface ClientDashboardProps {
     activeProgram: Client['activeProgram'];
@@ -21,6 +23,7 @@ interface ClientDashboardProps {
     completedSessions: SavedSession[];
     progDistributionMetric: 'sets' | 'load';
     setProgDistributionMetric: (metric: 'sets' | 'load') => void;
+    client: Client;
 }
 
 const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
@@ -29,10 +32,19 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
     latestAssessment,
     completedSessions,
     progDistributionMetric,
-    setProgDistributionMetric
+    setProgDistributionMetric,
+    client
 }) => {
     // 1. Calculate Analytics Metrics (ACWR, Internal Load)
     const analyticsMetrics = useClientDashboardData(completedSessions);
+
+    // 2. Calculate Performance Scores (0-100)
+    const performanceScores = usePerformanceScore({
+        dashboardStats,
+        analyticsMetrics,
+        latestAssessment,
+        client
+    });
 
     if (!activeProgram || !dashboardStats) return null;
 
@@ -183,9 +195,9 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                     )}
                 </div>
 
-                {/* Assessment Carousel (Replaces Program Summary) */}
-                <div className="lg:col-span-2">
-                    <LatestAssessmentCarousel assessment={latestAssessment} />
+                {/* Performance Radar (Holistic View) */}
+                <div className="lg:col-span-2 h-full">
+                    <PerformanceRadarChart data={performanceScores} />
                 </div>
             </div>
         </div>

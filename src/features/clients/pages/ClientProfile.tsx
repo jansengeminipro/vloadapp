@@ -100,6 +100,7 @@ const ClientProfile: React.FC = () => {
                         completedSessions={completedSessions}
                         progDistributionMetric={progDistributionMetric}
                         setProgDistributionMetric={setProgDistributionMetric}
+                        client={client}
                     />
                 )}
 
