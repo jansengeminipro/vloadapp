@@ -9,6 +9,9 @@ import BodyHeatmap from '../components/BodyHeatmap';
 import { StatusBadge } from '@/shared/components/analytics/StatusBadge';
 import { TrendIndicator } from '@/shared/components/analytics/TrendIndicator';
 import { InfoTooltip } from '@/shared/components/ui/InfoTooltip';
+import { VolumeDistributionChart } from '../components/charts/VolumeDistributionChart';
+import { useClientDashboardData } from '../hooks/useClientDashboardData';
+import { DashboardStatsCards } from '../components/dashboard/DashboardStatsCards';
 import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel';
 
 interface ClientDashboardProps {
