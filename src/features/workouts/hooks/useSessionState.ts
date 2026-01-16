@@ -1,0 +1,265 @@
+import { useState, useEffect, useCallback } from 'react';
+import { WorkoutTemplate, WorkoutExercise, Exercise } from '@/shared/types';
+import { supabase } from '@/shared/lib/supabase';
+
+export interface SetDraft {
+    weight: string;
+    reps: string;
+    rir: string;
+    completed: boolean;
+}
+
+interface UseSessionStateProps {
+    templateId: string | null;
+    initialEditMode?: boolean;
+}
+
+interface UseSessionStateReturn {
+    // Template
+    template: WorkoutTemplate | undefined;
+    isLoadingTemplate: boolean;
+    setTemplate: React.Dispatch<React.SetStateAction<WorkoutTemplate | undefined>>;
+
+    // Navigation
+    currentExerciseIndex: number;
+    setCurrentExerciseIndex: React.Dispatch<React.SetStateAction<number>>;
+    navigateExercise: (direction: 'prev' | 'next') => void;
+
+    // Logs
+    logs: { [exerciseIdx: number]: SetDraft[] };
+    updateSet: (setIndex: number, field: keyof SetDraft, value: any) => void;
+    toggleSetComplete: (setIndex: number, onComplete?: () => void) => void;
+    addSet: () => void;
+    removeSet: (setIndex: number) => void;
+
+    // Editing Mode
+    isEditing: boolean;
+    setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+
+    // Adaptation
+    handleAddExercise: (exercise: Exercise) => void;
+    handleRemoveExercise: (index: number) => void;
+    handleUpdateTarget: (index: number, field: keyof WorkoutExercise, value: any) => void;
+    handleOnDragEnd: (result: any) => void;
+
+    // Current Exercise Helpers
+    currentExercise: WorkoutExercise | undefined;
+    currentLogs: SetDraft[];
+}
+
+/**
+ * Hook to manage the core session state: template, logs, navigation, and adaptation.
+ */
+export const useSessionState = ({ templateId, initialEditMode = false }: UseSessionStateProps): UseSessionStateReturn => {
+    // Template State
+    const [template, setTemplate] = useState<WorkoutTemplate | undefined>(undefined);
+    const [isLoadingTemplate, setIsLoadingTemplate] = useState(true);
+
+    // Navigation
+    const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+
+    // Set Logs
+    const [logs, setLogs] = useState<{ [exerciseIdx: number]: SetDraft[] }>({});
+
+    // Editing Mode
+    const [isEditing, setIsEditing] = useState(initialEditMode);
+
+    // Fetch Template
+    useEffect(() => {
+        const fetchTemplate = async () => {
+            if (!templateId) {
+                setIsLoadingTemplate(false);
+                return;
+            }
+            const { data } = await supabase
+                .from('workout_templates')
+                .select('*')
+                .eq('id', templateId)
+                .single();
+
+            if (data) {
+                setTemplate({
+                    id: data.id,
+                    name: data.name,
+                    focus: data.focus || 'Geral',
+                    lastModified: new Date(data.updated_at || data.created_at).toLocaleDateString(),
+                    exercises: data.exercises || []
+                });
+            }
+            setIsLoadingTemplate(false);
+        };
+        fetchTemplate();
+    }, [templateId]);
+
+    // Initialize Logs when template loads
+    useEffect(() => {
+        if (template && Object.keys(logs).length === 0) {
+            const initialLogs: { [key: number]: SetDraft[] } = {};
+            template.exercises.forEach((ex, idx) => {
+                initialLogs[idx] = Array(ex.sets).fill(null).map(() => ({
+                    weight: '',
+                    reps: '',
+                    rir: '',
+                    completed: false
+                }));
+            });
+            setLogs(initialLogs);
+        }
+    }, [template]);
+
+    // Navigation
+    const navigateExercise = useCallback((direction: 'prev' | 'next') => {
+        if (!template) return;
+        if (direction === 'prev' && currentExerciseIndex > 0) {
+            setCurrentExerciseIndex(prev => prev - 1);
+        } else if (direction === 'next' && currentExerciseIndex < template.exercises.length - 1) {
+            setCurrentExerciseIndex(prev => prev + 1);
+        }
+    }, [template, currentExerciseIndex]);
+
+    // Set Management
+    const updateSet = useCallback((setIndex: number, field: keyof SetDraft, value: any) => {
+        setLogs(prev => {
+            const newLogs = { ...prev };
+            if (newLogs[currentExerciseIndex]) {
+                newLogs[currentExerciseIndex] = [...newLogs[currentExerciseIndex]];
+                newLogs[currentExerciseIndex][setIndex] = {
+                    ...newLogs[currentExerciseIndex][setIndex],
+                    [field]: value
+                };
+            }
+            return newLogs;
+        });
+    }, [currentExerciseIndex]);
+
+    const toggleSetComplete = useCallback((setIndex: number, onComplete?: () => void) => {
+        setLogs(prev => {
+            const newLogs = { ...prev };
+            if (newLogs[currentExerciseIndex]) {
+                newLogs[currentExerciseIndex] = [...newLogs[currentExerciseIndex]];
+                const isCompleting = !newLogs[currentExerciseIndex][setIndex].completed;
+                newLogs[currentExerciseIndex][setIndex] = {
+                    ...newLogs[currentExerciseIndex][setIndex],
+                    completed: isCompleting
+                };
+                if (isCompleting && onComplete) {
+                    onComplete();
+                }
+            }
+            return newLogs;
+        });
+    }, [currentExerciseIndex]);
+
+    const addSet = useCallback(() => {
+        setLogs(prev => {
+            const newLogs = { ...prev };
+            const currentLogs = newLogs[currentExerciseIndex] || [];
+            const prevSet = currentLogs[currentLogs.length - 1];
+            newLogs[currentExerciseIndex] = [
+                ...currentLogs,
+                {
+                    weight: prevSet ? prevSet.weight : '',
+                    reps: prevSet ? prevSet.reps : '',
+                    rir: prevSet ? prevSet.rir : '',
+                    completed: false
+                }
+            ];
+            return newLogs;
+        });
+    }, [currentExerciseIndex]);
+
+    const removeSet = useCallback((setIndex: number) => {
+        setLogs(prev => {
+            const newLogs = { ...prev };
+            if (newLogs[currentExerciseIndex]) {
+                newLogs[currentExerciseIndex] = newLogs[currentExerciseIndex].filter((_, idx) => idx !== setIndex);
+            }
+            return newLogs;
+        });
+    }, [currentExerciseIndex]);
+
+    // Adaptation Handlers
+    const handleAddExercise = useCallback((exercise: Exercise) => {
+        if (!template) return;
+        const newExercise: WorkoutExercise = {
+            ...exercise,
+            sets: 3,
+            targetReps: '8-12',
+            targetRIR: 2,
+            restSeconds: 90
+        };
+
+        setLogs({}); // Reset logs to force regeneration
+        setTemplate({
+            ...template,
+            exercises: [...template.exercises, newExercise]
+        });
+    }, [template]);
+
+    const handleRemoveExercise = useCallback((index: number) => {
+        if (!template) return;
+        const newExercises = [...template.exercises];
+        newExercises.splice(index, 1);
+
+        setLogs({}); // Reset logs to force regeneration
+        setTemplate({
+            ...template,
+            exercises: newExercises
+        });
+    }, [template]);
+
+    const handleUpdateTarget = useCallback((index: number, field: keyof WorkoutExercise, value: any) => {
+        if (!template) return;
+        const newExercises = [...template.exercises];
+        newExercises[index] = { ...newExercises[index], [field]: value };
+
+        if (field === 'sets') {
+            setLogs({});
+        }
+
+        setTemplate({
+            ...template,
+            exercises: newExercises
+        });
+    }, [template]);
+
+    const handleOnDragEnd = useCallback((result: any) => {
+        if (!result.destination || !template) return;
+
+        const items = Array.from(template.exercises);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+
+        setLogs({}); // Reset logs to ensure correct state mapping
+        setTemplate({
+            ...template,
+            exercises: items
+        });
+    }, [template]);
+
+    // Derived Values
+    const currentExercise = template?.exercises[currentExerciseIndex];
+    const currentLogs = logs[currentExerciseIndex] || [];
+
+    return {
+        template,
+        isLoadingTemplate,
+        setTemplate,
+        currentExerciseIndex,
+        setCurrentExerciseIndex,
+        navigateExercise,
+        logs,
+        updateSet,
+        toggleSetComplete,
+        addSet,
+        removeSet,
+        isEditing,
+        setIsEditing,
+        handleAddExercise,
+        handleRemoveExercise,
+        handleUpdateTarget,
+        handleOnDragEnd,
+        currentExercise,
+        currentLogs
+    };
+};

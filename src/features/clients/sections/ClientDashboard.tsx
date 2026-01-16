@@ -12,9 +12,12 @@ import { InfoTooltip } from '@/shared/components/ui/InfoTooltip';
 import { VolumeDistributionChart } from '../components/charts/VolumeDistributionChart';
 import { useClientDashboardData } from '../hooks/useClientDashboardData';
 import { DashboardStatsCards } from '../components/dashboard/DashboardStatsCards';
-import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel'; // Keep just in case, but we use Radar
+
+// import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel'; // Replaced by TopProgressionCard
+import { TopProgressionCard } from '../components/dashboard/TopProgressionCard';
 import { PerformanceRadarChart } from '../components/dashboard/PerformanceRadarChart';
 import { usePerformanceScore } from '../hooks/analytics/usePerformanceScore';
+import { useProgressionAnalysis } from '../hooks/analytics/useProgressionAnalysis';
 
 interface ClientDashboardProps {
     activeProgram: Client['activeProgram'];
@@ -51,6 +54,9 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
         completedSessions,
         activeProgramWorkouts // Pass to hook
     });
+
+    // 3. New Progression Logic for Card
+    const { topExercises } = useProgressionAnalysis(completedSessions || []);
 
     if (!activeProgram || !dashboardStats) return null;
 
@@ -119,16 +125,16 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                 </div>
             </div>
 
-            {/* Bottom Row: Internal Load & Program Summary & Carousel */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {/* Internal Load Zone Dashboard (1 col) */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm">
+            {/* Bottom Row: Internal Load & Radar & Top Progression - Equal Width Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Internal Load Zone Dashboard */}
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm flex flex-col">
                     <h4 className="text-sm font-bold text-white uppercase mb-4 w-full flex items-center gap-2">
                         <Activity size={16} className="text-cyan-400" /> Carga de Trabalho Recente
                         <InfoTooltip text="Mede o estresse psicológico e fisiológico total baseado no volume e intensidade das sessões." />
                     </h4>
                     {analyticsMetrics ? (
-                        <div className="space-y-6">
+                        <div className="space-y-6 flex-1">
                             <div>
                                 <div className="flex justify-between items-end mb-2">
                                     <div className="flex flex-col">
@@ -201,14 +207,14 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                     )}
                 </div>
 
-                {/* Performance Radar (Holistic View) - 2 cols on Large, 2 cols on XL */}
-                <div className="lg:col-span-2 xl:col-span-2 h-full">
+                {/* Performance Radar (Holistic View) */}
+                <div className="h-full">
                     <PerformanceRadarChart data={performanceScores} />
                 </div>
 
-                {/* Latest Assessment Carousel - 1 col (wrapped on LG, independent on XL) */}
-                <div className="lg:col-span-3 xl:col-span-1 h-full">
-                    <LatestAssessmentCarousel assessmentsByType={assessmentsByType} />
+                {/* Top Progression Card */}
+                <div className="h-full">
+                    <TopProgressionCard topExercises={topExercises} />
                 </div>
             </div>
         </div>

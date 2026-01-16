@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Client, SavedSession, WorkoutTemplate } from '@/shared/types';
 import { Assessment } from '@/features/assessments/domain/models';
 import { normalizeMuscleForChart } from '@/shared/utils/analytics';
+import { useProgressionAnalysis } from './useProgressionAnalysis';
 
 interface PerformanceScoreHookProps {
     dashboardStats: any;
@@ -19,6 +20,10 @@ export const usePerformanceScore = ({
     completedSessions,
     activeProgramWorkouts
 }: PerformanceScoreHookProps) => {
+
+    // Call the progression hook at the top level
+    const { stats: progressionStats } = useProgressionAnalysis(completedSessions || []);
+
     return useMemo(() => {
         // Now 5 Axes: Consistency, Vol MMSS, Vol MMII, Evolution, Intensity
         const scores = [
@@ -100,97 +105,21 @@ export const usePerformanceScore = ({
 
 
         // 4. PROGRESS (Evolução / Taxa de Progresso)
-        // Check completedSessions
-        if (!completedSessions || !Array.isArray(completedSessions)) {
-            // Early return or just continue with 0
-        }
-
-        const now = new Date();
-        const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - 7);
-
-        // Safe filters
-        const sessions = Array.isArray(completedSessions) ? completedSessions : [];
-        const thisWeekSessions = sessions.filter(s => new Date(s.date) >= startOfWeek);
-        const olderSessions = sessions.filter(s => new Date(s.date) < startOfWeek);
-
-        let progressScore = 0;
-        let comparisonsCount = 0;
-        let successCount = 0;
-
-        // Map older sessions
-        const historyMap: Record<string, number> = {};
-
-        olderSessions.forEach(s => {
-            if (s.details && Array.isArray(s.details)) {
-                s.details.forEach((d: any) => {
-                    const name = d.name;
-                    let bestE1RM = 0;
-                    if (d.setDetails && Array.isArray(d.setDetails)) {
-                        bestE1RM = d.setDetails.reduce((max: number, set: any) => {
-                            const w = parseFloat(set.weight) || 0;
-                            const r = parseFloat(set.reps) || 0;
-                            const e1rm = w * (1 + 0.0333 * r);
-                            return Math.max(max, e1rm);
-                        }, 0);
-                    }
-                    if (!historyMap[name]) historyMap[name] = bestE1RM;
-                });
-            }
-        });
-
-        thisWeekSessions.forEach(s => {
-            if (s.details && Array.isArray(s.details)) {
-                s.details.forEach((d: any) => {
-                    if (historyMap[d.name]) {
-                        let currentBest = 0;
-                        if (d.setDetails && Array.isArray(d.setDetails)) {
-                            currentBest = d.setDetails.reduce((max: number, set: any) => {
-                                const w = parseFloat(set.weight) || 0;
-                                const r = parseFloat(set.reps) || 0;
-                                return Math.max(max, w * (1 + 0.0333 * r));
-                            }, 0);
-                        }
-                        if (currentBest > 0) {
-                            comparisonsCount++;
-                            if (currentBest > historyMap[d.name]) successCount++;
-                        }
-                    }
-                });
-            }
-        });
-
-        if (comparisonsCount < 3) {
-            // FALLBACK
-            const thisWeekVol = thisWeekSessions.reduce((acc, s) => acc + (s.volumeLoad || 0), 0);
-
-            const startOfPrevWeek = new Date(startOfWeek);
-            startOfPrevWeek.setDate(startOfPrevWeek.getDate() - 7);
-            const prevWeekSessions = olderSessions.filter(s => {
-                const d = new Date(s.date);
-                return d >= startOfPrevWeek && d < startOfWeek;
-            });
-            const prevWeekVol = prevWeekSessions.reduce((acc, s) => acc + (s.volumeLoad || 0), 0);
-
-            if (thisWeekVol > prevWeekVol && prevWeekVol > 0) progressScore = 100;
-            else if (thisWeekVol === 0 && prevWeekVol === 0) progressScore = 0;
-            else if (thisWeekVol >= prevWeekVol * 0.9) progressScore = 75;
-            else progressScore = 40;
-
-        } else {
-            const ratio = successCount / comparisonsCount;
-            if (ratio >= 0.6) progressScore = 100;
-            else if (ratio >= 0.3) progressScore = 75;
-            else progressScore = 40;
-        }
-
-        if (isNaN(progressScore)) progressScore = 0;
-        scores[3].A = Math.round(progressScore);
+        // Now fully delegated to the hook!
+        scores[3].A = Math.round(progressionStats.progressScore || 0);
 
 
         // 5. INTENSITY (Esforço / RPE)
         let totalRPE = 0;
         let setCounts = 0;
+        const sessions = completedSessions || [];
+
+        // Filter this week sessions manually here since we need them for Intensity too
+        // (Or we could extract Intensity logic too, but let's keep it here for now as requested)
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - 7);
+        const thisWeekSessions = sessions.filter(s => new Date(s.date) >= startOfWeek);
 
         thisWeekSessions.forEach(s => {
             if (s.details && Array.isArray(s.details)) {
@@ -236,5 +165,5 @@ export const usePerformanceScore = ({
 
         return scores;
 
-    }, [dashboardStats, analyticsMetrics, client, completedSessions, activeProgramWorkouts]);
+    }, [dashboardStats, analyticsMetrics, client, completedSessions, activeProgramWorkouts, progressionStats]);
 };

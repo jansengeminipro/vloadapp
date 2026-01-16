@@ -1,6 +1,15 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { MuscleGroup } from '@/shared/types';
-import DetailedBodySVG from './DetailedBodySVG';
+
+// Lazy load the large SVG component (~500KB) to reduce initial bundle size
+const DetailedBodySVG = React.lazy(() => import('./DetailedBodySVG'));
+
+// Skeleton loader for the SVG while it loads
+const HeatmapSkeleton = () => (
+    <div className="w-full aspect-[2048/1898] bg-slate-900/50 rounded-xl animate-pulse flex items-center justify-center">
+        <div className="text-slate-700 text-sm">Carregando mapa...</div>
+    </div>
+);
 
 interface BodyHeatmapProps {
     muscleVolumes: Record<string, number>;
@@ -26,12 +35,14 @@ const BodyHeatmap = React.memo(({ muscleVolumes }: BodyHeatmapProps) => {
     return (
         <div className="flex flex-col items-center w-full">
             <div className="relative w-full max-w-2xl">
-                <DetailedBodySVG
-                    getColor={getColor}
-                    BASE_COLOR={BASE_COLOR}
-                    STROKE_COLOR={STROKE_COLOR}
-                    muscleVolumes={muscleVolumes}
-                />
+                <Suspense fallback={<HeatmapSkeleton />}>
+                    <DetailedBodySVG
+                        getColor={getColor}
+                        BASE_COLOR={BASE_COLOR}
+                        STROKE_COLOR={STROKE_COLOR}
+                        muscleVolumes={muscleVolumes}
+                    />
+                </Suspense>
             </div>
 
             <div className="mt-8 w-full max-w-sm px-4">

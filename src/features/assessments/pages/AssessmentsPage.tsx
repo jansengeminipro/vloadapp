@@ -6,7 +6,7 @@ import { Client } from '@/shared/types';
 import { Activity, Search, Users, CheckCircle, ChevronRight, ChevronLeft, LayoutList } from 'lucide-react';
 import { AssessmentFactory, AVAILABLE_TESTS, TEST_CATEGORIES } from '../domain/strategies';
 import AssessmentFormBuilder from '../components/AssessmentFormBuilder';
-import { saveAssessment } from '../data/assessmentsService';
+import { saveAssessment } from '@/services';
 import { Assessment, AnalysisResult } from '../domain/models';
 
 type Step = 'select-client' | 'select-tests' | 'execute';

@@ -6,7 +6,7 @@ import { useAuth } from '@/app/providers/AuthProvider';
 import { Client } from '@/shared/types';
 import { AVAILABLE_TESTS, TEST_CATEGORIES } from '../domain/strategies';
 import { Assessment, AnalysisResult } from '../domain/models';
-import { getClientAssessments, deleteAssessment } from '../data/assessmentsService';
+import { getClientAssessments, deleteAssessment } from '@/services';
 
 interface AssessmentsTabProps {
     client: Client;
