@@ -13,11 +13,12 @@ import { VolumeDistributionChart } from '../components/charts/VolumeDistribution
 import { useClientDashboardData } from '../hooks/useClientDashboardData';
 import { DashboardStatsCards } from '../components/dashboard/DashboardStatsCards';
 
-// import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel'; // Replaced by TopProgressionCard
-import { TopProgressionCard } from '../components/dashboard/TopProgressionCard';
+// import { LatestAssessmentCarousel } from '../components/dashboard/LatestAssessmentCarousel'; // Replaced by StrengthVariationsCard
+import { StrengthVariationsCard } from '../components/dashboard/StrengthVariationsCard';
 import { PerformanceRadarChart } from '../components/dashboard/PerformanceRadarChart';
 import { usePerformanceScore } from '../hooks/analytics/usePerformanceScore';
 import { useProgressionAnalysis } from '../hooks/analytics/useProgressionAnalysis';
+import { ExerciseEvolutionModal } from '../components/dashboard/ExerciseEvolutionModal';
 
 interface ClientDashboardProps {
     activeProgram: Client['activeProgram'];
@@ -55,8 +56,21 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
         activeProgramWorkouts // Pass to hook
     });
 
-    // 3. New Progression Logic for Card
-    const { topExercises } = useProgressionAnalysis(completedSessions || []);
+    // 3. New Strength Variations Logic for Card (Mesocycle Comparison)
+    const { strengthVariations } = useProgressionAnalysis(completedSessions || [], {
+        mesoStartDate: activeProgram?.startDate
+    });
+
+    // 4. Modal State
+    const [selectedExerciseForModal, setSelectedExerciseForModal] = React.useState<string | null>(null);
+
+    const handleOpenExerciseModal = (exerciseName: string) => {
+        setSelectedExerciseForModal(exerciseName);
+    };
+
+    const handleCloseExerciseModal = () => {
+        setSelectedExerciseForModal(null);
+    };
 
     if (!activeProgram || !dashboardStats) return null;
 
@@ -212,11 +226,22 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                     <PerformanceRadarChart data={performanceScores} />
                 </div>
 
-                {/* Top Progression Card */}
+                {/* Strength Variations Card */}
                 <div className="h-full">
-                    <TopProgressionCard topExercises={topExercises} />
+                    <StrengthVariationsCard
+                        variations={strengthVariations}
+                        onExerciseClick={handleOpenExerciseModal}
+                    />
                 </div>
             </div>
+
+            {/* Exercise Evolution Modal */}
+            <ExerciseEvolutionModal
+                isOpen={!!selectedExerciseForModal}
+                onClose={handleCloseExerciseModal}
+                exerciseName={selectedExerciseForModal || ''}
+                sessions={completedSessions}
+            />
         </div>
     );
 };

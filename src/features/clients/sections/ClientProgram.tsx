@@ -71,73 +71,86 @@ const ClientProgram: React.FC<ClientProgramProps> = ({ client, setClient, allTem
 
     return (
         <div className="space-y-8 animate-in fade-in pb-10">
-            {/* Program Blueprint (Strategic Header) */}
-            <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 relative overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
-                    <LayoutTemplate size={120} className="text-white" />
-                </div>
+            {/* Program Blueprint (Strategic Header - Premium Redesign) */}
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-3xl p-6 md:p-8 relative overflow-hidden group">
 
-                <div className="relative z-10">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
-                        <div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <h2 className="text-2xl font-black text-white tracking-tight uppercase">{client.activeProgram.name}</h2>
-                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-wider">
+                {/* Subtle Background Glow */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+                <div className="relative z-10 space-y-8">
+                    {/* Header Row: Title & Actions */}
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-3xl font-black text-white tracking-tight">{client.activeProgram.name}</h2>
+                                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-widest shadow-[0_0_10px_rgba(16,185,129,0.1)]">
                                     Ativo
                                 </span>
                             </div>
-                            <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-400">
-                                <span className="flex items-center gap-1.5 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
-                                    <Calendar size={14} className="text-primary-500" />
-                                    Início: {new Date(client.activeProgram.startDate).toLocaleDateString()}
+                            <div className="flex items-center gap-4 text-xs font-medium text-slate-400">
+                                <span className="flex items-center gap-1.5">
+                                    <Calendar size={13} className="text-slate-500" />
+                                    {new Date(client.activeProgram.startDate).toLocaleDateString()}
+                                    {client.activeProgram.endDate && ` → ${new Date(client.activeProgram.endDate).toLocaleDateString()}`}
                                 </span>
-                                {client.activeProgram.endDate && (
-                                    <span className="flex items-center gap-1.5 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
-                                        <Target size={14} className="text-primary-500" />
-                                        Fim: {new Date(client.activeProgram.endDate).toLocaleDateString()}
-                                    </span>
-                                )}
                             </div>
                         </div>
-                        <div className="flex gap-2 w-full md:w-auto">
-                            <button onClick={handleDeleteProgram} disabled={isSaving} className="p-2.5 text-slate-400 hover:text-red-500 transition-colors border border-slate-700 rounded-lg hover:border-red-500/50 hover:bg-red-500/10" title="Excluir Programa">
-                                <Trash2 size={18} />
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 w-full md:w-auto">
+                            <button
+                                onClick={handleOpenManage}
+                                className="flex-1 md:flex-none px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all border border-slate-700 hover:border-slate-600 flex items-center justify-center gap-2 group/edit"
+                            >
+                                <Settings size={14} className="group-hover/edit:rotate-45 transition-transform duration-300" />
+                                Gerenciar Estrutura
                             </button>
-                            <button onClick={handleOpenManage} className="flex-1 md:flex-none px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-bold transition-all shadow-lg flex items-center justify-center gap-2 border border-slate-600">
-                                <Edit2 size={16} /> <span className="hidden sm:inline">Gerenciar Estrutura</span><span className="sm:hidden">Editar</span>
+                            <button
+                                onClick={handleDeleteProgram}
+                                disabled={isSaving}
+                                className="p-2 text-slate-500 hover:text-red-400 transition-colors hover:bg-red-500/10 rounded-lg"
+                                title="Excluir Programa"
+                            >
+                                <Trash2 size={16} />
                             </button>
-                            <Link to={`/session/new?clientId=${client.id}`} className="flex-1 md:flex-none px-4 py-2.5 bg-primary-600 hover:bg-primary-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary-900/20 flex items-center justify-center gap-2">
-                                <Plus size={18} /> <span className="hidden sm:inline">Treino Avulso</span><span className="sm:hidden">Avulso</span>
-                            </Link>
                         </div>
                     </div>
 
-                    {/* Structural Stats (DNA) */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-slate-700/50">
-                        {programStats && (
-                            <>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Frequência</span>
-                                    <span className="text-xl md:text-2xl font-black text-white">{programStats.uniqueDays}x <span className="text-sm text-slate-500 font-medium">/semana</span></span>
+                    {/* Stats Row (Divider + Grid) */}
+                    {programStats && (
+                        <div className="pt-6 border-t border-slate-800/50">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Frequência</span>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-2xl font-black text-white">{programStats.uniqueDays}x</span>
+                                        <span className="text-xs font-medium text-slate-500">/semana</span>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Volume Planejado</span>
-                                    <span className="text-xl md:text-2xl font-black text-white">{programStats.totalWeeklySets} <span className="text-sm text-slate-500 font-medium">séries</span></span>
+
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Volume Semanal</span>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-2xl font-black text-white">{programStats.totalWeeklySets}</span>
+                                        <span className="text-xs font-medium text-slate-500">séries</span>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Divisão</span>
-                                    <span className="text-xl md:text-2xl font-black text-white truncate">
-                                        {programStats.divisionType}
-                                    </span>
+
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Divisão</span>
+                                    <span className="text-xl font-bold text-white truncate">{programStats.divisionType}</span>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Status Microciclo</span>
-                                    <span className="text-xl md:text-2xl font-black text-emerald-400">{programStats.microCycleStatus}</span>
+
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Status Microciclo</span>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                                        <span className="text-lg font-bold text-emerald-400">{programStats.microCycleStatus}</span>
+                                    </div>
                                 </div>
-                            </>
-                        )}
-                    </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

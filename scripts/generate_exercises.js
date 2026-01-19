@@ -1,0 +1,57 @@
+// Script to generate merged exercises.ts
+const fs = require('fs');
+
+const DB_MUSCULOS = {
+    "Peito": {
+        "Supino reto com barra": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Barra" },
+        "Supino reto com halteres": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Halteres" },
+        "Supino reto com halteres (unilateral)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Halteres" },
+        "Supino reto com halteres (alternado)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Halteres" },
+        "Supino reto na máquina": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Máquina" },
+        "Supino reto na máquina (unilateral)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Máquina" },
+        "Supino reto articulado": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Articulada" },
+        "Supino reto articulado (unilateral)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Articulada" },
+        "Supino reto no Smith": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Máquina" },
+        "Supino vertical com elástico": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Elástico" },
+        "Supino no chão (Floor Press) com barra": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Barra" },
+        "Supino no chão (Floor Press) com halteres": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Halteres" },
+        "Supino guilhotina (barra no pescoço)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Barra" },
+        "Flexão de braços tradicional": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Peso Corporal" },
+        "Flexão de braços com palmada": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Peso Corporal" },
+        "Flexão de braços (joelhos no chão)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Peso Corporal" },
+        "Flexão arqueiro (Archer Push-up)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Peso Corporal" },
+        "Supino inclinado com barra": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Barra" },
+        "Supino inclinado com halteres": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Halteres" },
+        "Supino inclinado com halteres (unilateral)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Halteres" },
+        "Supino inclinado com halteres (alternado)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Halteres" },
+        "Supino inclinado com halteres (pegada neutra)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Halteres" },
+        "Supino inclinado na máquina": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Máquina" },
+        "Supino inclinado na máquina (unilateral)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Máquina" },
+        "Supino inclinado articulado": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Articulada" },
+        "Supino inclinado articulado (unilateral)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Articulada" },
+        "Supino inclinado no Smith": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Máquina" },
+        "Flexão inclinada (mãos em banco)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Peso Corporal" },
+        "Supino declinado com barra": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Barra" },
+        "Supino declinado com halteres": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Halteres" },
+        "Supino declinado na máquina": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Máquina" },
+        "Supino declinado articulado": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Articulada" },
+        "Supino declinado no Smith": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Máquina" },
+        "Paralelas (tronco inclinado à frente)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Peso Corporal" },
+        "Paralelas no Graviton (foco peitoral)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Máquina" },
+        "Flexão declinada (pés em banco)": { "agonista": ["Peitoral"], "sinergista": ["Tríceps", "Deltoide anterior"], "tipo": "Peso Corporal" },
+        "Crucifixo reto com halteres": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Halteres" },
+        "Crucifixo inclinado com halteres": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Halteres" },
+        "Crucifixo declinado com halteres": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Halteres" },
+        "Peck deck (máquina)": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Máquina" },
+        "Crossover (polia alta)": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Máquina" },
+        "Crossover (polia média)": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Máquina" },
+        "Crossover (polia baixa)": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Máquina" },
+        "Crucifixo na polia (unilateral)": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Máquina" },
+        "Crucifixo com elástico": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Elástico" },
+        "Crucifixo articulado": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Articulada" },
+        "Flexão com braços abertos (Fly Push-up)": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Peso Corporal" },
+        "Svend Press com anilha": { "agonista": ["Peitoral"], "sinergista": ["Deltoide anterior"], "tipo": "Halteres" }
+    }
+};
+
+console.log('Script placeholder - will be executed to generate file');

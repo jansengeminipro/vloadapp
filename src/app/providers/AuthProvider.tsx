@@ -6,7 +6,7 @@ export interface Profile {
     id: string;
     email: string;
     full_name: string;
-    role: 'trainer' | 'student';
+    role: 'trainer' | 'student' | 'editor' | 'admin';
     trainer_id?: string;
     avatar_url?: string;
     birth_date?: string;
@@ -18,7 +18,7 @@ interface AuthContextType {
     session: Session | null;
     user: User | null;
     profile: Profile | null;
-    role: 'trainer' | 'student' | null;
+    role: 'trainer' | 'student' | 'editor' | 'admin' | null;
     loading: boolean;
     signInWithEmail: (email: string, options?: { data?: any }) => Promise<void>;
     signOut: () => Promise<void>;
@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [session, setSession] = useState<Session | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
-    const [role, setRole] = useState<'trainer' | 'student' | null>(null);
+    const [role, setRole] = useState<'trainer' | 'student' | 'editor' | 'admin' | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (data) {
                 setProfile(data as Profile);
-                setRole(data.role as 'trainer' | 'student');
+                setRole(data.role as 'trainer' | 'student' | 'editor' | 'admin');
             } else {
                 setRole(null);
                 setProfile(null);

@@ -39,7 +39,11 @@ interface UseSessionStateReturn {
     // Adaptation
     handleAddExercise: (exercise: Exercise) => void;
     handleRemoveExercise: (index: number) => void;
+    handleReplaceExercise: (index: number, exercise: Exercise) => void;
+    handleUpdateExercise: (index: number, updatedExercise: WorkoutExercise) => void;
     handleUpdateTarget: (index: number, field: keyof WorkoutExercise, value: any) => void;
+    handleAddAlternative: (index: number, exercise: Exercise) => void;
+    handleSwapAlternative: (exerciseIndex: number, alternativeIndex: number) => void;
     handleOnDragEnd: (result: any) => void;
 
     // Current Exercise Helpers
@@ -223,6 +227,96 @@ export const useSessionState = ({ templateId, initialEditMode = false }: UseSess
         });
     }, [template]);
 
+    const handleReplaceExercise = useCallback((index: number, exercise: Exercise) => {
+        if (!template) return;
+        const newExercises = [...template.exercises];
+        const newWorkoutExercise: WorkoutExercise = {
+            ...exercise,
+            sets: 3,
+            targetReps: '8-12',
+            targetRIR: 2,
+            restSeconds: 90
+        };
+        newExercises[index] = newWorkoutExercise;
+
+        setLogs({}); // Reset logs as exercise changed
+        setTemplate({
+            ...template,
+            exercises: newExercises
+        });
+    }, [template]);
+
+    const handleUpdateExercise = useCallback((index: number, updatedExercise: WorkoutExercise) => {
+        if (!template) return;
+        const newExercises = [...template.exercises];
+        newExercises[index] = updatedExercise;
+
+        setTemplate({
+            ...template,
+            exercises: newExercises
+        });
+    }, [template]);
+
+    const handleAddAlternative = useCallback((index: number, exercise: Exercise) => {
+        if (!template) return;
+        const newExercises = [...template.exercises];
+        const targetExercise = { ...newExercises[index] };
+
+        const newAlternative: WorkoutExercise = {
+            ...exercise,
+            sets: targetExercise.sets, // Inhert sets from parent
+            targetReps: targetExercise.targetReps,
+            targetRIR: targetExercise.targetRIR,
+            restSeconds: targetExercise.restSeconds
+        };
+
+        targetExercise.alternatives = [...(targetExercise.alternatives || []), newAlternative];
+        newExercises[index] = targetExercise;
+
+        setTemplate({
+            ...template,
+            exercises: newExercises
+        });
+    }, [template]);
+
+    const handleSwapAlternative = useCallback((exerciseIndex: number, alternativeIndex: number) => {
+        if (!template) return;
+        const newExercises = [...template.exercises];
+        const mainExercise = { ...newExercises[exerciseIndex] };
+
+        if (!mainExercise.alternatives) return; // Should not happen
+
+        // Create a copy of alternatives
+        const newAlternatives = [...mainExercise.alternatives];
+
+        // Identify the chosen alternative
+        const selectedAlternative = newAlternatives[alternativeIndex];
+
+        // Prepare the old main to become an alternative
+        // Important: Strip its own alternatives array to avoid nesting
+        const oldMainAsAlternative = { ...mainExercise, alternatives: [] };
+
+        // Swap in Place: Put the old main exactly where the selected alternative was
+        newAlternatives[alternativeIndex] = oldMainAsAlternative;
+
+        // Create the new main exercise
+        const newMainExercise: WorkoutExercise = {
+            ...selectedAlternative,
+            sets: mainExercise.sets, // Preserve session targets
+            targetReps: mainExercise.targetReps,
+            targetRIR: mainExercise.targetRIR,
+            restSeconds: mainExercise.restSeconds,
+            alternatives: newAlternatives // Attach the modified list
+        };
+
+        newExercises[exerciseIndex] = newMainExercise;
+
+        setTemplate({
+            ...template,
+            exercises: newExercises
+        });
+    }, [template]);
+
     const handleOnDragEnd = useCallback((result: any) => {
         if (!result.destination || !template) return;
 
@@ -257,7 +351,11 @@ export const useSessionState = ({ templateId, initialEditMode = false }: UseSess
         setIsEditing,
         handleAddExercise,
         handleRemoveExercise,
+        handleReplaceExercise,
+        handleUpdateExercise,
         handleUpdateTarget,
+        handleAddAlternative, // Exposed
+        handleSwapAlternative, // Exposed
         handleOnDragEnd,
         currentExercise,
         currentLogs

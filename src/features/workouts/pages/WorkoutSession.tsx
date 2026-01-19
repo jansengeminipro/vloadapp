@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, Timer, CheckCircle2, History, ChevronRight, PlayCircle, Plus, Trash2, Video, X, Search, Settings, GripVertical, Layers, Dumbbell, Target, Clock, Play } from 'lucide-react';
+import { ChevronLeft, Timer, CheckCircle2, History, ChevronRight, PlayCircle, Plus, Trash2, Video, X, Search, Settings, GripVertical, Layers, Dumbbell, Target, Clock, Play, Activity } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { WorkoutExercise, Exercise } from '@/shared/types';
@@ -11,6 +11,8 @@ import { useAuth } from '@/app/providers/AuthProvider';
 import { useSessionTimer } from '../hooks/useSessionTimer';
 import { useSessionState, SetDraft } from '../hooks/useSessionState';
 import { useExerciseHistory } from '../hooks/useExerciseHistory';
+import ExerciseDetailsModal from '../components/ExerciseDetailsModal';
+import ExerciseSelectionModal from '../components/ExerciseSelectionModal';
 
 // --- Helper Functions ---
 const getYouTubeID = (url: string) => {
@@ -25,73 +27,7 @@ const getThumbnailUrl = (url?: string) => {
   return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null;
 };
 
-// --- Sub-Components ---
-const DraggableExercise: React.FC<{
-  ex: WorkoutExercise;
-  index: number;
-  onUpdateTarget: (index: number, field: keyof WorkoutExercise, value: any) => void;
-  onRemove: (index: number) => void;
-}> = ({ ex, index, onUpdateTarget, onRemove }) => {
-  const thumbUrl = getThumbnailUrl(ex.videoUrl);
-  return (
-    <Draggable draggableId={`${ex.id}-${index}`} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          className={`bg-slate-900 border ${snapshot.isDragging ? 'border-primary-500 shadow-2xl scale-[1.02] z-50' : 'border-slate-800'} rounded-xl p-4 md:p-6 transition-all duration-200 relative group flex flex-col md:flex-row gap-6`}
-        >
-          <button onClick={() => onRemove(index)} className="absolute top-4 right-4 text-slate-600 hover:text-red-500 transition-colors p-2 z-10">
-            <Trash2 size={18} />
-          </button>
-
-          <div className="flex flex-col gap-3 items-center">
-            <div {...provided.dragHandleProps} className="text-slate-600 hover:text-slate-400 cursor-grab active:cursor-grabbing p-1">
-              <GripVertical size={20} />
-            </div>
-            <div className="w-full md:w-32 aspect-video bg-slate-950 rounded-lg border border-slate-800 flex items-center justify-center overflow-hidden relative">
-              {thumbUrl ? (
-                <>
-                  <img src={thumbUrl} alt="Preview" className="w-full h-full object-cover opacity-60" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <Play size={20} className="text-white fill-white opacity-80" />
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center gap-1 text-slate-700"><Video size={20} /></div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex-1 space-y-4">
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-white pr-10">{ex.name}</h3>
-              <p className="text-sm text-slate-500 font-medium uppercase tracking-wider">{ex.muscleGroup} • {ex.equipment || 'N/A'}</p>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">
-                <label className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1.5 mb-2"><Layers size={12} /> Séries</label>
-                <input type="number" value={ex.sets} onChange={(e) => onUpdateTarget(index, 'sets', parseInt(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-700 text-white font-mono font-bold p-1.5 rounded focus:ring-1 ring-primary-500 outline-none" />
-              </div>
-              <div className="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">
-                <label className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1.5 mb-2"><Dumbbell size={12} /> Reps</label>
-                <input type="text" value={ex.targetReps} onChange={(e) => onUpdateTarget(index, 'targetReps', e.target.value)} className="w-full bg-slate-900 border border-slate-700 text-white font-mono font-bold p-1.5 rounded focus:ring-1 ring-primary-500 outline-none" />
-              </div>
-              <div className="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">
-                <label className="text-[10px] text-amber-500/80 font-bold uppercase flex items-center gap-1.5 mb-2"><Target size={12} /> RIR Alvo</label>
-                <input type="number" value={ex.targetRIR} onChange={(e) => onUpdateTarget(index, 'targetRIR', parseInt(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-700 text-amber-500 font-mono font-bold p-1.5 rounded focus:ring-1 ring-amber-500 outline-none" />
-              </div>
-              <div className="bg-slate-950/50 p-3 rounded-lg border border-slate-800/50">
-                <label className="text-[10px] text-blue-400/80 font-bold uppercase flex items-center gap-1.5 mb-2"><Clock size={12} /> Descanso (s)</label>
-                <input type="number" step={30} value={ex.restSeconds || 0} onChange={(e) => onUpdateTarget(index, 'restSeconds', parseInt(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-700 text-blue-400 font-mono font-bold p-1.5 rounded focus:ring-1 ring-blue-500 outline-none" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </Draggable>
-  );
-};
+import { DraggableExerciseCard } from '../components/DraggableExerciseCard';
 
 // --- Main Component ---
 const WorkoutSession: React.FC = () => {
@@ -112,7 +48,9 @@ const WorkoutSession: React.FC = () => {
   // Modal States
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [viewingDetailExercise, setViewingDetailExercise] = useState<Exercise | null>(null);
+  const [viewingDetailIndex, setViewingDetailIndex] = useState<number | null>(null);
+
 
   // Force sync with URL param (Robust for HashRouter)
   useEffect(() => {
@@ -215,7 +153,19 @@ const WorkoutSession: React.FC = () => {
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
                   {session.template!.exercises.map((ex, i) => (
-                    <DraggableExercise key={`${ex.id}-${i}`} ex={ex} index={i} onUpdateTarget={session.handleUpdateTarget} onRemove={session.handleRemoveExercise} />
+                    <DraggableExerciseCard
+                      key={`${ex.id}-${i}`}
+                      exercise={ex}
+                      index={i}
+                      onRemove={session.handleRemoveExercise}
+                      onUpdate={session.handleUpdateExercise}
+                      onSwap={session.handleSwapAlternative}
+                      onOpenDetails={(exercise, index) => {
+                        setViewingDetailExercise(exercise);
+                        setViewingDetailIndex(index);
+                        setShowAddExerciseModal(true);
+                      }}
+                    />
                   ))}
                   {provided.placeholder}
                 </div>
@@ -229,26 +179,65 @@ const WorkoutSession: React.FC = () => {
           <div className="h-20"></div>
         </div>
 
-        {showAddExerciseModal && (
-          <div className="fixed inset-0 bg-slate-950/95 z-50 flex flex-col p-4 animate-in fade-in">
-            <div className="flex justify-between items-center mb-4 safe-area-top pt-2">
-              <h3 className="text-white font-bold text-lg">Adicionar Exercício</h3>
-              <button onClick={() => setShowAddExerciseModal(false)} className="text-slate-400 p-2"><X size={24} /></button>
-            </div>
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-              <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar por nome ou grupo muscular..." className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary-500" />
-            </div>
-            <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
-              {EXERCISE_DB.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()) || e.muscleGroup.toString().toLowerCase().includes(searchQuery.toLowerCase())).map(e => (
-                <button key={e.id} onClick={() => { session.handleAddExercise(e); setShowAddExerciseModal(false); }} className="w-full text-left p-4 bg-slate-900 border border-slate-800 rounded-xl hover:border-primary-500/50 hover:bg-slate-800 transition-all flex justify-between items-center group">
-                  <div><h4 className="text-white font-bold text-sm group-hover:text-primary-400 transition-colors">{e.name}</h4><span className="text-xs text-slate-500">{e.muscleGroup}</span></div>
-                  <Plus size={18} className="text-slate-600 group-hover:text-primary-500" />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <ExerciseSelectionModal
+          isOpen={showAddExerciseModal}
+          onClose={() => setShowAddExerciseModal(false)}
+          onSelect={(exercise) => {
+            session.handleAddExercise(exercise);
+            setShowAddExerciseModal(false);
+          }}
+          exercises={EXERCISE_DB}
+          initialViewingExercise={viewingDetailExercise}
+          workoutContext={viewingDetailIndex !== null && session.template ? session.template.exercises[viewingDetailIndex] : undefined}
+          onUpdateWorkoutContext={(updates) => {
+            if (session.template && viewingDetailIndex !== null) {
+              // Iterate over updates to update each field individually using handleUpdateTarget
+              Object.entries(updates).forEach(([key, value]) => {
+                session.handleUpdateTarget(viewingDetailIndex, key as keyof WorkoutExercise, value);
+              });
+            }
+          }}
+          onReplace={(exercise) => {
+            if (viewingDetailIndex !== null) {
+              session.handleReplaceExercise(viewingDetailIndex, exercise);
+            }
+          }}
+          onAddAlternative={(exercise) => {
+            if (viewingDetailIndex !== null) {
+              session.handleAddAlternative(viewingDetailIndex, exercise);
+            }
+          }}
+          onRemove={() => {
+            if (viewingDetailIndex !== null && session.template) {
+              const exercise = session.template.exercises[viewingDetailIndex];
+              const alternatives = exercise.alternatives || [];
+
+              if (alternatives.length > 0) {
+                // Promote first alternative to be the new Main
+                const newMain = alternatives[0];
+                const otherAlternatives = alternatives.slice(1);
+
+                const updatedExercise = {
+                  ...newMain,
+                  sets: exercise.sets,
+                  targetReps: exercise.targetReps,
+                  targetRIR: exercise.targetRIR,
+                  restSeconds: exercise.restSeconds,
+                  alternatives: otherAlternatives
+                };
+
+                session.handleUpdateExercise(viewingDetailIndex, updatedExercise);
+              } else {
+                // No alternatives? Just remove the slot.
+                session.handleRemoveExercise(viewingDetailIndex);
+              }
+              setShowAddExerciseModal(false);
+            }
+          }}
+        />
+
+
+
       </div>
     );
   }
@@ -325,41 +314,65 @@ const WorkoutSession: React.FC = () => {
               <div className="text-xs bg-slate-950 px-3 py-1.5 rounded-md border border-slate-800 text-slate-400">RIR: <span className="text-amber-500 font-bold">{currentExercise.targetRIR}</span></div>
               <div className="text-xs bg-slate-950 px-3 py-1.5 rounded-md border border-slate-800 text-slate-400">Desc: <span className="text-blue-400 font-medium">{currentExercise.restSeconds}s</span></div>
             </div>
-          </div>
 
-          <div className="p-2 space-y-1">
-            <div className="grid grid-cols-12 gap-2 px-2 py-2 text-[10px] uppercase tracking-wider text-slate-500 font-bold text-center">
-              <div className="col-span-1 flex items-center justify-center">Série</div>
-              <div className="col-span-4">kg</div>
-              <div className="col-span-3">Reps</div>
-              <div className="col-span-2">RIR</div>
-              <div className="col-span-2"></div>
-            </div>
-
-            {currentLogs.map((set, idx) => (
-              <div key={idx} className={`grid grid-cols-12 gap-2 items-center p-2 rounded-lg transition-all duration-200 ${set.completed ? 'bg-emerald-900/20 border border-emerald-900/50' : 'bg-slate-950 border border-slate-800'}`}>
-                <div className="col-span-1 text-center font-bold text-slate-500 text-sm">{idx + 1}</div>
-                <div className="col-span-4"><input type="number" placeholder="-" value={set.weight} onChange={(e) => session.updateSet(idx, 'weight', e.target.value)} className={`w-full bg-slate-800 text-center p-3 rounded-lg border border-transparent focus:border-primary-500 focus:outline-none text-lg font-bold ${set.completed ? 'text-emerald-100' : 'text-white'}`} /></div>
-                <div className="col-span-3"><input type="number" placeholder="-" value={set.reps} onChange={(e) => session.updateSet(idx, 'reps', e.target.value)} className={`w-full bg-slate-800 text-center p-3 rounded-lg border border-transparent focus:border-primary-500 focus:outline-none text-lg font-bold ${set.completed ? 'text-emerald-100' : 'text-white'}`} /></div>
-                <div className="col-span-2"><input type="number" placeholder="-" value={set.rir} onChange={(e) => session.updateSet(idx, 'rir', e.target.value)} className="w-full bg-slate-800 text-amber-500 text-center p-3 rounded-lg border border-transparent focus:border-amber-500 focus:outline-none text-lg font-bold placeholder-amber-900/50" /></div>
-                <div className="col-span-2 flex justify-center gap-1">
-                  <button onClick={() => session.removeSet(idx)} className="h-10 w-8 flex items-center justify-center rounded-lg text-slate-600 hover:bg-red-500/10 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
-                  <button onClick={() => session.toggleSetComplete(idx, timer.startRestTimer)} className={`h-10 w-10 flex items-center justify-center rounded-lg transition-all shadow-lg active:scale-95 ${set.completed ? 'bg-emerald-500 text-white shadow-emerald-900/20' : 'bg-slate-800 text-slate-500 hover:bg-slate-700 hover:text-slate-300'}`}><CheckCircle2 size={22} fill={set.completed ? "currentColor" : "none"} /></button>
+            {/* Alternatives Navigation (Cycle Button) */}
+            {(currentExercise.alternatives && currentExercise.alternatives.length > 0) && (
+              <div className="flex flex-col items-center gap-2 mt-4 pt-4 border-t border-slate-800/50">
+                <button
+                  onClick={() => session.handleSwapAlternative(session.currentExerciseIndex, 0)}
+                  className="w-full py-2 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-lg flex items-center justify-center gap-2 text-primary-400 font-medium transition-all active:scale-[0.99]"
+                >
+                  <Layers size={14} />
+                  <span>Ver alternativa ({currentExercise.alternatives.length})</span>
+                  <ChevronRight size={16} />
+                </button>
+                {/* Pagination Dots */}
+                <div className="flex gap-1.5">
+                  {/* Active Dot (Always first because Main is always active slot) */}
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary-500 shadow-sm shadow-primary-500/50"></div>
+                  {/* Dots for alternatives in queue */}
+                  {currentExercise.alternatives.map((_, idx) => (
+                    <div key={idx} className="w-1.5 h-1.5 rounded-full bg-slate-700/50"></div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
 
-            <button onClick={session.addSet} className="w-full py-4 text-sm font-medium text-slate-400 hover:text-primary-400 hover:bg-slate-800/50 hover:border-primary-500/30 border border-dashed border-slate-800 rounded-lg mt-3 flex items-center justify-center gap-2 transition-all"><Plus size={18} /> Adicionar Série</button>
+            <div className="p-2 space-y-1">
+              <div className="grid grid-cols-12 gap-2 px-2 py-2 text-[10px] uppercase tracking-wider text-slate-500 font-bold text-center">
+                <div className="col-span-1 flex items-center justify-center">Série</div>
+                <div className="col-span-4">kg</div>
+                <div className="col-span-3">Reps</div>
+                <div className="col-span-2">RIR</div>
+                <div className="col-span-2"></div>
+              </div>
+
+              {currentLogs.map((set, idx) => (
+                <div key={idx} className={`grid grid-cols-12 gap-2 items-center p-2 rounded-lg transition-all duration-200 ${set.completed ? 'bg-emerald-900/20 border border-emerald-900/50' : 'bg-slate-950 border border-slate-800'}`}>
+                  <div className="col-span-1 text-center font-bold text-slate-500 text-sm">{idx + 1}</div>
+                  <div className="col-span-4"><input type="number" placeholder="-" value={set.weight} onChange={(e) => session.updateSet(idx, 'weight', e.target.value)} className={`w-full bg-slate-800 text-center p-3 rounded-lg border border-transparent focus:border-primary-500 focus:outline-none text-lg font-bold ${set.completed ? 'text-emerald-100' : 'text-white'}`} /></div>
+                  <div className="col-span-3"><input type="number" placeholder="-" value={set.reps} onChange={(e) => session.updateSet(idx, 'reps', e.target.value)} className={`w-full bg-slate-800 text-center p-3 rounded-lg border border-transparent focus:border-primary-500 focus:outline-none text-lg font-bold ${set.completed ? 'text-emerald-100' : 'text-white'}`} /></div>
+                  <div className="col-span-2"><input type="number" placeholder="-" value={set.rir} onChange={(e) => session.updateSet(idx, 'rir', e.target.value)} className="w-full bg-slate-800 text-amber-500 text-center p-3 rounded-lg border border-transparent focus:border-amber-500 focus:outline-none text-lg font-bold placeholder-amber-900/50" /></div>
+                  <div className="col-span-2 flex justify-center gap-1">
+                    <button onClick={() => session.removeSet(idx)} className="h-10 w-8 flex items-center justify-center rounded-lg text-slate-600 hover:bg-red-500/10 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                    <button onClick={() => session.toggleSetComplete(idx, timer.startRestTimer)} className={`h-10 w-10 flex items-center justify-center rounded-lg transition-all shadow-lg active:scale-95 ${set.completed ? 'bg-emerald-500 text-white shadow-emerald-900/20' : 'bg-slate-800 text-slate-500 hover:bg-slate-700 hover:text-slate-300'}`}><CheckCircle2 size={22} fill={set.completed ? "currentColor" : "none"} /></button>
+                  </div>
+                </div>
+              ))}
+
+              <button onClick={session.addSet} className="w-full py-4 text-sm font-medium text-slate-400 hover:text-primary-400 hover:bg-slate-800/50 hover:border-primary-500/30 border border-dashed border-slate-800 rounded-lg mt-3 flex items-center justify-center gap-2 transition-all"><Plus size={18} /> Adicionar Série</button>
+            </div>
           </div>
+
+          {/* Next Exercise Preview */}
+          {session.currentExerciseIndex < session.template.exercises.length - 1 && (
+            <div onClick={() => { session.navigateExercise('next'); timer.stopRestTimer(); }} className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex justify-between items-center opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
+              <div><p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">A Seguir</p><p className="text-white font-medium">{session.template.exercises[session.currentExerciseIndex + 1].name}</p></div>
+              <ChevronRight className="text-slate-500" />
+            </div>
+          )}
         </div>
 
-        {/* Next Exercise Preview */}
-        {session.currentExerciseIndex < session.template.exercises.length - 1 && (
-          <div onClick={() => { session.navigateExercise('next'); timer.stopRestTimer(); }} className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex justify-between items-center opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
-            <div><p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">A Seguir</p><p className="text-white font-medium">{session.template.exercises[session.currentExerciseIndex + 1].name}</p></div>
-            <ChevronRight className="text-slate-500" />
-          </div>
-        )}
       </div>
 
       {/* History Modal */}
@@ -418,6 +431,7 @@ const WorkoutSession: React.FC = () => {
           <h3 className="text-white font-bold text-lg mt-4">{currentExercise.name}</h3>
         </div>
       )}
+
     </div>
   );
 };

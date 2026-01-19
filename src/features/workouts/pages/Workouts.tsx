@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Edit2, Trash2, Save, X, ChevronLeft, Clock, Target, Dumbbell, Layers, LayoutGrid, Anchor, ArrowDown, ChevronUp, ChevronDown, Zap, Box, Video, Play, Link as LinkIcon, UserPlus, Check, AlertCircle, Copy, Calendar, GripVertical } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Save, X, ChevronLeft, Clock, Target, Dumbbell, Layers, LayoutGrid, Anchor, ArrowDown, ChevronUp, ChevronDown, Zap, Box, Video, Play, Link as LinkIcon, UserPlus, Check, AlertCircle, Copy, Calendar, GripVertical, Activity, ChevronRight } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { WorkoutTemplate, Exercise, WorkoutExercise, MuscleGroup, Client } from '@/shared/types';
 import { EXERCISE_DB } from '@/shared/data/exercises';
@@ -37,113 +37,11 @@ const getMuscleIcon = (muscle: string | 'All') => {
   }
 };
 
-// Sub-component for Draggable Exercise in Editor
-const DraggableWorkoutExercise: React.FC<{
-  exercise: WorkoutExercise;
-  index: number;
-  removeExercise: (index: number) => void;
-  updateExerciseParam: (index: number, field: keyof WorkoutExercise, value: any) => void;
-  setVideoInputIndex: (index: number) => void;
-  setTempVideoUrl: (url: string) => void;
-  getThumbnailUrl: (url?: string) => string | null;
-}> = ({ exercise, index, removeExercise, updateExerciseParam, setVideoInputIndex, setTempVideoUrl, getThumbnailUrl }) => {
-  const thumbUrl = getThumbnailUrl(exercise.videoUrl);
-  return (
-    <Draggable draggableId={`${exercise.id}-${index}`} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          className={`bg-slate-800 border ${snapshot.isDragging ? 'border-primary-500 shadow-2xl scale-[1.02] z-50' : 'border-slate-700'} rounded-xl p-4 md:p-6 relative group flex flex-col md:flex-row gap-6 transition-all duration-200`}
-        >
-          <button type="button" onClick={() => removeExercise(index)} className="absolute top-4 right-4 text-slate-600 hover:text-red-500 transition-colors p-2 z-10">
-            <Trash2 size={18} />
-          </button>
+import { DraggableExerciseCard } from '../components/DraggableExerciseCard';
 
-          <div className="flex flex-col gap-3 items-center">
-            {/* Drag Handle */}
-            <div {...provided.dragHandleProps} className="text-slate-600 hover:text-slate-400 cursor-grab active:cursor-grabbing p-1">
-              <GripVertical size={20} />
-            </div>
+/* DraggableWorkoutExercise Removed - Replaced by Shared Component */
 
-            <div
-              onClick={() => { setVideoInputIndex(index); setTempVideoUrl(exercise.videoUrl || '') }}
-              className="w-full md:w-32 aspect-video bg-slate-900 rounded-lg border border-slate-700 flex items-center justify-center cursor-pointer hover:border-primary-500 transition-all overflow-hidden relative group/video"
-            >
-              {thumbUrl ? (
-                <>
-                  <img src={thumbUrl} alt="Preview" className="w-full h-full object-cover opacity-70 group-hover/video:opacity-100 transition-opacity" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover/video:bg-transparent transition-all">
-                    <Play size={20} className="text-white fill-white" />
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center gap-1 text-slate-500 group-hover/video:text-primary-400">
-                  <Video size={24} />
-                  <span className="text-[10px] font-medium">Add Vídeo</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex-1 space-y-4">
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-white mb-1 pr-10">{exercise.name}</h3>
-              <p className="text-sm text-slate-500">{exercise.muscleGroup} • {exercise.equipment}</p>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                <label className="text-xs text-slate-500 font-semibold uppercase flex items-center gap-1 mb-2">
-                  <Layers size={12} /> Séries
-                </label>
-                <input
-                  type="number"
-                  value={exercise.sets}
-                  onChange={(e) => updateExerciseParam(index, 'sets', parseInt(e.target.value) || 0)}
-                  className="w-full bg-slate-800 text-white font-bold p-1 rounded focus:ring-1 ring-primary-500 outline-none"
-                />
-              </div>
-              <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                <label className="text-xs text-slate-500 font-semibold uppercase flex items-center gap-1 mb-2">
-                  <Dumbbell size={12} /> Reps
-                </label>
-                <input
-                  type="text"
-                  value={exercise.targetReps}
-                  onChange={(e) => updateExerciseParam(index, 'targetReps', e.target.value)}
-                  className="w-full bg-slate-800 text-white font-bold p-1 rounded focus:ring-1 ring-primary-500 outline-none"
-                />
-              </div>
-              <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                <label className="text-xs text-amber-500/80 font-semibold uppercase flex items-center gap-1 mb-2">
-                  <Target size={12} /> RIR Alvo
-                </label>
-                <input
-                  type="number"
-                  value={exercise.targetRIR}
-                  onChange={(e) => updateExerciseParam(index, 'targetRIR', parseInt(e.target.value) || 0)}
-                  className="w-full bg-slate-800 text-amber-500 font-bold p-1 rounded focus:ring-1 ring-amber-500 outline-none"
-                />
-              </div>
-              <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                <label className="text-xs text-blue-400/80 font-semibold uppercase flex items-center gap-1 mb-2">
-                  <Clock size={12} /> Descanso (s)
-                </label>
-                <input
-                  type="number"
-                  step={30}
-                  value={exercise.restSeconds || 0}
-                  onChange={(e) => updateExerciseParam(index, 'restSeconds', parseInt(e.target.value) || 0)}
-                  className="w-full bg-slate-800 text-blue-400 font-bold p-1 rounded focus:ring-1 ring-blue-500 outline-none"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </Draggable>
-  );
-};
+import ExerciseSelectionModal from '../components/ExerciseSelectionModal';
 
 const Workouts: React.FC = () => {
   // ... (Keep existing states and fetch logic) ...
@@ -214,11 +112,12 @@ const Workouts: React.FC = () => {
   const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
   const [editingTemplate, setEditingTemplate] = useState<WorkoutTemplate | null>(null);
   const [showExerciseModal, setShowExerciseModal] = useState(false);
+  const [viewingDetailExercise, setViewingDetailExercise] = useState<Exercise | null>(null);
+  const [viewingDetailIndex, setViewingDetailIndex] = useState<number | null>(null);
   const [searchExercise, setSearchExercise] = useState('');
   const [selectedMuscleFilter, setSelectedMuscleFilter] = useState<string>('All');
   const [isCreatingExercise, setIsCreatingExercise] = useState(false);
   const [newExerciseForm, setNewExerciseForm] = useState({ name: '', muscleGroup: MuscleGroup.Chest, equipment: 'Peso do Corpo' });
-  const [videoInputIndex, setVideoInputIndex] = useState<number | null>(null);
   const [tempVideoUrl, setTempVideoUrl] = useState('');
 
   // Assignment Modal States
@@ -721,6 +620,81 @@ const Workouts: React.FC = () => {
     </div>
   );
 
+  const handleAddAlternative = (index: number, alternative: Exercise) => {
+    if (!editingTemplate) return;
+    const newExercises = [...editingTemplate.exercises];
+    // Inherit configuration from parent
+    const altWorkoutExercise: WorkoutExercise = {
+      ...alternative,
+      sets: newExercises[index].sets,
+      targetReps: newExercises[index].targetReps,
+      targetRIR: newExercises[index].targetRIR,
+      restSeconds: newExercises[index].restSeconds,
+      alternatives: [] // Flatten structure, don't nest alternatives
+    };
+
+    const currentAlternatives = newExercises[index].alternatives || [];
+    newExercises[index] = {
+      ...newExercises[index],
+      alternatives: [...currentAlternatives, altWorkoutExercise]
+    };
+
+    setEditingTemplate({ ...editingTemplate, exercises: newExercises });
+    setShowExerciseModal(false);
+  };
+
+  const handleSwapAlternative = (exerciseIndex: number, alternativeIndex: number) => {
+    if (!editingTemplate) return;
+    const newExercises = [...editingTemplate.exercises];
+    const exercise = newExercises[exerciseIndex];
+    if (!exercise.alternatives) return; // Should not happen
+
+    // Create copy of alternatives
+    const newAlternatives = [...exercise.alternatives];
+
+    // Identify chosen alternative
+    const alternative = newAlternatives[alternativeIndex];
+
+    // Prepare old main as alternative (strip its alternatives)
+    const oldMainAsAlternative: WorkoutExercise = { ...exercise, alternatives: [] };
+
+    // Swap in Place: Insert old main where the selected alternative was
+    newAlternatives[alternativeIndex] = oldMainAsAlternative;
+
+    // Create new main exercise
+    const newMain: WorkoutExercise = {
+      ...alternative,
+      alternatives: newAlternatives
+    };
+
+    newExercises[exerciseIndex] = newMain;
+    setEditingTemplate({ ...editingTemplate, exercises: newExercises });
+  };
+
+  const handleReplaceExercise = (index: number, newEx: Exercise) => {
+    if (!editingTemplate) return;
+    const newExercises = [...editingTemplate.exercises];
+    const oldEx = newExercises[index];
+    newExercises[index] = {
+      ...newEx,
+      sets: oldEx.sets,
+      targetReps: oldEx.targetReps,
+      targetRIR: oldEx.targetRIR,
+      restSeconds: oldEx.restSeconds,
+      alternatives: oldEx.alternatives // Preserve alternatives? Or clear? Let's preserve for now to be safe.
+    };
+    setEditingTemplate({ ...editingTemplate, exercises: newExercises });
+    setEditingTemplate({ ...editingTemplate, exercises: newExercises });
+    setShowExerciseModal(false);
+  };
+
+  const handleUpdateExercise = (index: number, updatedExercise: WorkoutExercise) => {
+    if (!editingTemplate) return;
+    const newExercises = [...editingTemplate.exercises];
+    newExercises[index] = updatedExercise;
+    setEditingTemplate({ ...editingTemplate, exercises: newExercises });
+  };
+
   const renderEditorView = () => {
     if (!editingTemplate) return null;
     return (
@@ -780,14 +754,18 @@ const Workouts: React.FC = () => {
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
                   {editingTemplate.exercises.map((exercise, index) => (
-                    <DraggableWorkoutExercise
+                    <DraggableExerciseCard
                       key={`${exercise.id}-${index}`}
                       exercise={exercise}
                       index={index}
-                      removeExercise={removeExercise}
-                      updateExerciseParam={updateExerciseParam}
-                      setVideoInputIndex={setVideoInputIndex}
-                      setTempVideoUrl={setTempVideoUrl}
+                      onRemove={removeExercise}
+                      onUpdate={handleUpdateExercise}
+                      onSwap={handleSwapAlternative}
+                      onOpenDetails={(ex, idx) => {
+                        setViewingDetailExercise(ex);
+                        setViewingDetailIndex(idx);
+                        setShowExerciseModal(true);
+                      }}
                       getThumbnailUrl={getThumbnailUrl}
                     />
                   ))}
@@ -932,82 +910,150 @@ const Workouts: React.FC = () => {
       )}
 
       {/* Exercise Modal */}
-      {showExerciseModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <div className="p-4 border-b border-slate-800 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-white">{isCreatingExercise ? 'Criar Exercício' : 'Selecionar Exercício'}</h2>
-              <button type="button" onClick={() => setShowExerciseModal(false)} className="text-slate-400 hover:text-white"><X size={24} /></button>
-            </div>
-            {/* ... (Keep existing exercise modal logic) ... */}
-            {isCreatingExercise ? (
-              <div className="p-6 flex flex-col h-full overflow-y-auto space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Nome</label>
-                  <input type="text" value={newExerciseForm.name} onChange={(e) => setNewExerciseForm({ ...newExerciseForm, name: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-primary-500 focus:outline-none" autoFocus />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Músculo</label>
-                  <select value={newExerciseForm.muscleGroup} onChange={(e) => setNewExerciseForm({ ...newExerciseForm, muscleGroup: e.target.value as MuscleGroup })} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-primary-500 focus:outline-none">
-                    {Object.values(MuscleGroup).map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Equipamento</label>
-                  <input type="text" value={newExerciseForm.equipment} onChange={(e) => setNewExerciseForm({ ...newExerciseForm, equipment: e.target.value })} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-primary-500 focus:outline-none" placeholder="Ex: Halteres" />
-                </div>
-                <div className="pt-4 flex gap-3">
-                  <button type="button" onClick={() => setIsCreatingExercise(false)} className="flex-1 py-3 bg-slate-800 text-white rounded-lg font-medium">Voltar</button>
-                  <button type="button" onClick={saveCustomExercise} className="flex-1 py-3 bg-primary-600 text-white rounded-lg font-medium">Salvar</button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="p-4 border-b border-slate-800 space-y-4 bg-slate-900/50">
-                  <div className="flex gap-4">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                      <input type="text" placeholder="Buscar..." value={searchExercise} onChange={(e) => setSearchExercise(e.target.value)} className="w-full bg-slate-950 border border-slate-700 text-white pl-10 pr-4 py-2 rounded-lg focus:outline-none" />
-                    </div>
-                    <button type="button" onClick={() => setIsCreatingExercise(true)} className="bg-emerald-600 p-2 rounded-lg text-white" title="Criar Exercício Personalizado"><Plus size={24} /></button>
-                  </div>
-                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                    <button type="button" onClick={() => setSelectedMuscleFilter('All')} className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide border transition-all whitespace-nowrap ${selectedMuscleFilter === 'All' ? 'bg-primary-600 border-primary-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>Todos</button>
-                    {Object.values(MuscleGroup).map(m => (
-                      <button key={m} type="button" onClick={() => setSelectedMuscleFilter(m)} className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide border transition-all whitespace-nowrap ${selectedMuscleFilter === m ? 'bg-primary-600 border-primary-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>{m}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex-1 overflow-y-auto p-2">
-                  {filteredExercises.map(exercise => (
-                    <button key={exercise.id} type="button" onClick={() => addExercise(exercise)} className="w-full flex items-center gap-4 p-4 hover:bg-slate-800 rounded-lg group transition-colors text-left border border-transparent hover:border-slate-700">
-                      <div className="flex-1">
-                        <h4 className="text-white font-medium">{exercise.name}</h4>
-                        <p className="text-sm text-slate-500">{exercise.muscleGroup} • {exercise.equipment}</p>
-                      </div>
-                      <Plus size={20} className="text-slate-500 group-hover:text-emerald-500" />
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <ExerciseSelectionModal
+        isOpen={showExerciseModal}
+        onClose={() => {
+          setShowExerciseModal(false);
+          setViewingDetailExercise(null);
+        }}
+        onSelect={addExercise}
+        onReplace={(exercise) => {
+          if (viewingDetailIndex !== null) handleReplaceExercise(viewingDetailIndex, exercise);
+        }}
+        onAddAlternative={(exercise) => {
+          if (viewingDetailIndex !== null) handleAddAlternative(viewingDetailIndex, exercise);
+        }}
+        onRemove={() => {
+          if (viewingDetailIndex !== null && editingTemplate) {
+            const exercise = editingTemplate.exercises[viewingDetailIndex];
+            const alternatives = exercise.alternatives || [];
 
-      {/* Video URL Modal */}
-      {videoInputIndex !== null && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-md shadow-2xl p-6">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><LinkIcon size={20} /> Link do Vídeo</h3>
-            <input type="text" placeholder="https://youtube.com/..." value={tempVideoUrl} onChange={(e) => setTempVideoUrl(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:outline-none mb-4" autoFocus />
-            <div className="flex justify-end gap-3">
-              <button type="button" onClick={() => setVideoInputIndex(null)} className="px-4 py-2 text-slate-400">Cancelar</button>
-              <button type="button" onClick={() => { if (editingTemplate) { updateExerciseParam(videoInputIndex, 'videoUrl', tempVideoUrl); setVideoInputIndex(null); } }} className="px-4 py-2 bg-primary-600 text-white rounded-lg font-bold">Salvar</button>
-            </div>
-          </div>
-        </div>
-      )}
+            if (alternatives.length > 0) {
+              // Promote first alternative to be the new Main
+              const newMain = alternatives[0];
+              const otherAlternatives = alternatives.slice(1);
+
+              const updatedExercise = {
+                ...newMain,
+                sets: exercise.sets,
+                targetReps: exercise.targetReps,
+                targetRIR: exercise.targetRIR,
+                restSeconds: exercise.restSeconds,
+                alternatives: otherAlternatives
+              };
+
+              handleUpdateExercise(viewingDetailIndex, updatedExercise);
+            } else {
+              // No alternatives? Just remove the slot.
+              removeExercise(viewingDetailIndex);
+            }
+            setShowExerciseModal(false);
+          }
+        }}
+        exercises={filteredExercises}
+        initialViewingExercise={viewingDetailExercise}
+        workoutContext={viewingDetailIndex !== null && editingTemplate ? editingTemplate.exercises[viewingDetailIndex] : undefined}
+        onUpdateWorkoutContext={(updates) => {
+          if (editingTemplate && viewingDetailIndex !== null) {
+            const newExercises = [...editingTemplate.exercises];
+            newExercises[viewingDetailIndex] = { ...newExercises[viewingDetailIndex], ...updates };
+            setEditingTemplate({ ...editingTemplate, exercises: newExercises });
+          }
+        }}
+        onCreateCustom={async (data) => {
+          setNewExerciseForm({ ...data, equipment: data.equipment || 'Peso do Corpo' });
+          setTempVideoUrl(data.videoUrl || '');
+
+          if (!user) return alert("Erro de autenticação");
+
+          try {
+            const payload: any = {
+              name: data.name,
+              muscle_group: data.muscleGroup,
+              equipment: data.equipment,
+              coach_id: user.id,
+              video_url: data.videoUrl || null,
+              is_global: data.isGlobal || false
+            };
+
+            const { data: customData, error } = await supabase
+              .from('custom_exercises')
+              .insert(payload)
+              .select()
+              .single();
+
+            if (error) throw error;
+
+            const newEx: Exercise = {
+              id: customData.id,
+              name: customData.name,
+              muscleGroup: customData.muscle_group as MuscleGroup,
+              equipment: customData.equipment,
+              agonists: [customData.muscle_group],
+              synergists: [],
+              videoUrl: customData.video_url,
+              isGlobal: customData.is_global,
+              ownerId: customData.coach_id
+            };
+
+            setCustomExercises(prev => [...prev, newEx]);
+            addExercise(newEx);
+          } catch (err: any) {
+            console.error('Save error:', err);
+            // Warn but don't crash if field missing
+            alert('Erro ao criar: ' + err.message);
+            throw err;
+          }
+        }}
+        onUpdateExercise={async (id, updates) => {
+          if (!user) return;
+          try {
+            // Map updates to DB columns
+            const dbUpdates: any = {};
+            if (updates.name) dbUpdates.name = updates.name;
+            if (updates.muscleGroup) dbUpdates.muscle_group = updates.muscleGroup;
+            if (updates.equipment) dbUpdates.equipment = updates.equipment;
+            if (updates.videoUrl !== undefined) dbUpdates.video_url = updates.videoUrl;
+
+            const { error } = await supabase
+              .from('custom_exercises')
+              .update(dbUpdates)
+              .eq('id', id);
+
+            if (error) throw error;
+
+            // Update Local State for Custom Exercises
+            setCustomExercises(prev => prev.map(ex => ex.id === id ? { ...ex, ...updates } : ex));
+
+            // Update Editing Template if it contains this exercise
+            if (editingTemplate) {
+              setEditingTemplate(prev => {
+                if (!prev) return null;
+                return {
+                  ...prev,
+                  exercises: prev.exercises.map(ex => {
+                    // Start customization -> viewingDetailExercise -> ID match
+                    if (ex.id === id) {
+                      return { ...ex, ...updates };
+                    }
+                    return ex;
+                  })
+                };
+              });
+            }
+
+            // Update viewing detail exercise to reflect changes immediately
+            setViewingDetailExercise(prev => prev && prev.id === id ? { ...prev, ...updates } : prev);
+
+          } catch (err: any) {
+            console.error('Update error:', err);
+            alert('Erro ao atualizar exercício: ' + err.message);
+            throw err;
+          }
+        }}
+      />
+
+
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmation && (

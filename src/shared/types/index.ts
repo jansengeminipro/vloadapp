@@ -1,4 +1,5 @@
 
+
 export enum MuscleGroup {
   Chest = 'Peitoral',
   Back = 'Costas',
@@ -21,13 +22,19 @@ export interface Exercise {
   videoUrl?: string;
   agonists: string[];
   synergists: string[];
+
+  // Multi-tenant fields
+  isGlobal?: boolean;
+  ownerId?: string;
 }
+
 
 export interface WorkoutExercise extends Exercise {
   sets: number;
   targetReps: string; // e.g. "8-12"
   targetRIR: number; // e.g. 2
   restSeconds: number;
+  alternatives?: WorkoutExercise[];
 }
 
 export interface Set {

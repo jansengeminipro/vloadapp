@@ -9,8 +9,7 @@ const LoginScreen: React.FC = () => {
     const [password, setPassword] = useState('');
     const [name, setName] = useState(''); // New state for registration
     const [showPassword, setShowPassword] = useState(false);
-    const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password');
-    const [mode, setMode] = useState<'login' | 'register'>('login'); // Toggle Login vs Register
+    const [mode, setMode] = useState<'login' | 'register' | 'forgot_password'>('login'); // Toggle Login vs Register vs Forgot
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
 
@@ -30,7 +29,7 @@ const LoginScreen: React.FC = () => {
         if (ref) setMode('login');
     }, []);
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleAction = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
         setMessage(null);
@@ -62,9 +61,9 @@ const LoginScreen: React.FC = () => {
 
                 setMessage('Conta criada com sucesso! Faça login para continuar.');
                 setMode('login');
-                setLoginMethod('password'); // Default to password login
             }
-            else if (loginMethod === 'otp') {
+            else if (mode === 'forgot_password') {
+                // SEND RESET/LOGIN LINK
                 const options = inviteData.trainerId ? {
                     data: {
                         trainer_id: inviteData.trainerId,
@@ -73,9 +72,11 @@ const LoginScreen: React.FC = () => {
                     }
                 } : undefined;
 
-                await signInWithEmail(email, options);
-                setMessage('Link de acesso enviado! Verifique seu e-mail.');
+                await signInWithEmail(email, options); // This sends a magic link which acts as a passwordless login/recovery
+                setMessage('Link de recuperação enviado! Verifique seu e-mail.');
+                setMode('login');
             } else {
+                // STANDARD PASSWORD LOGIN
                 const { error } = await supabase.auth.signInWithPassword({
                     email,
                     password
@@ -105,36 +106,12 @@ const LoginScreen: React.FC = () => {
                         </div>
                     ) : (
                         <p className="text-slate-400 text-sm">
-                            {mode === 'register' ? 'Criar Conta de Treinador' : 'Hipertrofia de Precisão'}
+                            {mode === 'register' ? 'Criar Conta de Treinador' : mode === 'forgot_password' ? 'Recuperar Acesso' : 'Hipertrofia de Precisão'}
                         </p>
                     )}
                 </div>
 
-                {/* Login Method Tabs - Hide in Register Mode */}
-                {mode === 'login' && (
-                    <div className="flex p-1 bg-slate-950 rounded-lg mb-6 border border-slate-800">
-                        <button
-                            onClick={() => setLoginMethod('password')}
-                            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${loginMethod === 'password'
-                                ? 'bg-slate-800 text-white shadow'
-                                : 'text-slate-400 hover:text-slate-200'
-                                }`}
-                        >
-                            Senha
-                        </button>
-                        <button
-                            onClick={() => setLoginMethod('otp')}
-                            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${loginMethod === 'otp'
-                                ? 'bg-slate-800 text-white shadow'
-                                : 'text-slate-400 hover:text-slate-200'
-                                }`}
-                        >
-                            Link Mágico
-                        </button>
-                    </div>
-                )}
-
-                <form onSubmit={handleLogin} className="space-y-4">
+                <form onSubmit={handleAction} className="space-y-4">
                     {/* Name Input - Only for Register */}
                     {mode === 'register' && (
                         <div>
@@ -168,9 +145,20 @@ const LoginScreen: React.FC = () => {
                         </div>
                     </div>
 
-                    {(mode === 'register' || loginMethod === 'password') && (
+                    {mode !== 'forgot_password' && (
                         <div>
-                            <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Senha</label>
+                            <div className="flex justify-between items-center mb-1">
+                                <label className="block text-xs font-bold text-slate-400 uppercase">Senha</label>
+                                {mode === 'login' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setMode('forgot_password'); setMessage(null); }}
+                                        className="text-xs text-primary-400 hover:text-primary-300 font-bold"
+                                    >
+                                        Esqueci minha senha
+                                    </button>
+                                )}
+                            </div>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-3 text-slate-500" size={18} />
                                 <input
@@ -201,7 +189,8 @@ const LoginScreen: React.FC = () => {
                         {isSubmitting
                             ? 'Processando...'
                             : mode === 'register' ? 'Criar Conta de Treinador'
-                                : loginMethod === 'password' ? 'Entrar' : 'Enviar Link de Acesso'
+                                : mode === 'forgot_password' ? 'Enviar Link de Recuperação'
+                                    : 'Entrar'
                         }
                     </button>
 
@@ -215,11 +204,6 @@ const LoginScreen: React.FC = () => {
                 <div className="mt-8 text-center text-xs text-slate-500">
                     {mode === 'login' ? (
                         <>
-                            <p className="mb-2">
-                                {loginMethod === 'password'
-                                    ? 'Esqueceu a senha? Use o Link Mágico (se cadastrado).'
-                                    : 'Link mágico envia um email para acesso sem senha.'}
-                            </p>
                             {!inviteData.trainerId && (
                                 <button
                                     onClick={() => { setMode('register'); setMessage(null); }}
@@ -234,7 +218,7 @@ const LoginScreen: React.FC = () => {
                             onClick={() => { setMode('login'); setMessage(null); }}
                             className="text-primary-400 hover:text-primary-300 font-bold"
                         >
-                            Já tem uma conta? Entrar
+                            Voltar para Login
                         </button>
                     )}
                 </div>
