@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { WorkoutTemplate, WorkoutExercise, Exercise } from '@/shared/types';
-import { supabase } from '@/shared/lib/supabase';
+import { getWorkoutTemplate } from '../api/workoutService';
 
 export interface SetDraft {
     weight: string;
@@ -75,20 +75,10 @@ export const useSessionState = ({ templateId, initialEditMode = false }: UseSess
                 setIsLoadingTemplate(false);
                 return;
             }
-            const { data } = await supabase
-                .from('workout_templates')
-                .select('*')
-                .eq('id', templateId)
-                .single();
+            const templateData = await getWorkoutTemplate(templateId);
 
-            if (data) {
-                setTemplate({
-                    id: data.id,
-                    name: data.name,
-                    focus: data.focus || 'Geral',
-                    lastModified: new Date(data.updated_at || data.created_at).toLocaleDateString(),
-                    exercises: data.exercises || []
-                });
+            if (templateData) {
+                setTemplate(templateData);
             }
             setIsLoadingTemplate(false);
         };
@@ -227,15 +217,17 @@ export const useSessionState = ({ templateId, initialEditMode = false }: UseSess
         });
     }, [template]);
 
-    const handleReplaceExercise = useCallback((index: number, exercise: Exercise) => {
+    const handleReplaceExercise = useCallback((index: number, exercise: Exercise, preserveTargets = false) => {
         if (!template) return;
         const newExercises = [...template.exercises];
+        const oldExercise = newExercises[index]; // Get existing exercise
+
         const newWorkoutExercise: WorkoutExercise = {
             ...exercise,
-            sets: 3,
-            targetReps: '8-12',
-            targetRIR: 2,
-            restSeconds: 90
+            sets: preserveTargets ? oldExercise.sets : 3,
+            targetReps: preserveTargets ? oldExercise.targetReps : '8-12',
+            targetRIR: preserveTargets ? oldExercise.targetRIR : 2,
+            restSeconds: preserveTargets ? oldExercise.restSeconds : 90
         };
         newExercises[index] = newWorkoutExercise;
 

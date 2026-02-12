@@ -34,7 +34,7 @@ export const useDataSeeder = (user: any, role: string | null) => {
 
                         if (isUpperBody) {
                             selectedExercises.push({ ...getRandom(getExercisesByGroup(MuscleGroup.Chest)), sets: 4 });
-                            selectedExercises.push({ ...getRandom(getExercisesByGroup(MuscleGroup.Back)), sets: 4 });
+                            selectedExercises.push({ ...getRandom(getExercisesByGroup(MuscleGroup.Lats)), sets: 4 });
                             selectedExercises.push({ ...getRandom(getExercisesByGroup(MuscleGroup.Shoulders)), sets: 3 });
                             const armMuscle = Math.random() > 0.5 ? MuscleGroup.Triceps : MuscleGroup.Biceps;
                             selectedExercises.push({ ...getRandom(getExercisesByGroup(armMuscle)), sets: 3 });
@@ -53,7 +53,7 @@ export const useDataSeeder = (user: any, role: string | null) => {
                             if (ex.equipment.includes('Barra') || ex.equipment.includes('Máquina')) baseWeight = 60;
                             if (ex.equipment.includes('Halter')) baseWeight = 18;
                             if (ex.muscleGroup === MuscleGroup.Shoulders || ex.muscleGroup === MuscleGroup.Biceps || ex.muscleGroup === MuscleGroup.Triceps) baseWeight = 12;
-                            if (ex.muscleGroup === MuscleGroup.Quads || ex.muscleGroup === MuscleGroup.Back) baseWeight += 20;
+                            if (ex.muscleGroup === MuscleGroup.Quads || ex.muscleGroup === MuscleGroup.Lats || ex.muscleGroup === MuscleGroup.UpperBack) baseWeight += 20;
 
                             for (let s = 0; s < ex.sets; s++) {
                                 const weight = Math.floor(baseWeight * currentMultiplier);

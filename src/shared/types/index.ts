@@ -2,7 +2,9 @@
 
 export enum MuscleGroup {
   Chest = 'Peitoral',
-  Back = 'Costas',
+  Lats = 'Grande Dorsal',
+  UpperBack = 'Dorso Superior',
+  Traps = 'Trapézio',
   Quads = 'Quadríceps',
   Hamstrings = 'Posteriores',
   Shoulders = 'Ombros',
@@ -11,14 +13,26 @@ export enum MuscleGroup {
   Calves = 'Panturrilhas',
   Glutes = 'Glúteos',
   Abs = 'Abdômen',
-  Adductors = 'Adutores'
+  Adductors = 'Adutores',
+  Abductors = 'Abdutores',
+  Forearms = 'Antebraço',
+  Core = 'Core'
+}
+
+export enum Equipment {
+  Barbell = 'Barra',
+  Dumbbell = 'Halter',
+  Machine = 'Máquina',
+  Cable = 'Cabo',
+  Bodyweight = 'Peso do Corpo',
+  Band = 'Elástico'
 }
 
 export interface Exercise {
   id: string;
   name: string;
   muscleGroup: MuscleGroup | string; // Allow string for mapping flexibility
-  equipment: string;
+  equipment: Equipment | string; // Allow string for mapping flexibility
   videoUrl?: string;
   agonists: string[];
   synergists: string[];

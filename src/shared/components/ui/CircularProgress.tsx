@@ -17,7 +17,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     size = 80,
     strokeWidth = 8,
     color = '#6366F1',
-    trackColor = '#1E293B',
+    trackColor = 'rgba(255,255,255,0.05)',
     animated = true,
     children
 }) => {

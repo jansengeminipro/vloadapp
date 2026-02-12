@@ -108,8 +108,8 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
             {/* Middle Section: Heatmap vs Distribution */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Heatmap Section */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm flex flex-col items-center relative">
-                    <h4 className="text-sm font-bold text-white uppercase mb-4 w-full flex items-center gap-2">
+                <div className="bg-surface-800 border border-white/5 rounded-xl p-6 shadow-sm flex flex-col items-center relative backdrop-blur-sm">
+                    <h4 className="text-sm font-bold text-white uppercase mb-4 w-full flex items-center gap-2 font-display tracking-tight">
                         <Zap size={16} className="text-amber-500" /> Mapa de Calor Semanal
                     </h4>
                     <div className="scale-90 lg:scale-100">
@@ -118,17 +118,17 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                 </div>
 
                 {/* Volume Distribution Bar Chart */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm">
+                <div className="bg-surface-800 border border-white/5 rounded-xl p-6 shadow-sm backdrop-blur-sm">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                        <h4 className="text-sm font-bold text-white uppercase flex items-center gap-2">
+                        <h4 className="text-sm font-bold text-white uppercase flex items-center gap-2 font-display tracking-tight">
                             <BarChart3 size={16} className="text-primary-500" /> Distribuição de Volume (Semana)
                         </h4>
-                        <div className="flex bg-slate-900 rounded-lg border border-slate-700 p-1">
+                        <div className="flex bg-surface-900 rounded-lg border border-white/5 p-1">
                             {(['sets', 'load'] as const).map(m => (
                                 <button
                                     key={m}
                                     onClick={() => setProgDistributionMetric(m)}
-                                    className={`px-3 py-1 text-[10px] font-bold rounded uppercase tracking-wider transition-colors ${progDistributionMetric === m ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                                    className={`px-3 py-1 text-[10px] font-bold rounded uppercase tracking-wider transition-colors ${progDistributionMetric === m ? 'bg-surface-700 text-white shadow-sm' : 'text-surface-500 hover:text-surface-300'}`}
                                 >
                                     {m === 'sets' ? 'Séries' : 'Carga'}
                                 </button>
@@ -142,8 +142,8 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
             {/* Bottom Row: Internal Load & Radar & Top Progression - Equal Width Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Internal Load Zone Dashboard */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-sm flex flex-col">
-                    <h4 className="text-sm font-bold text-white uppercase mb-4 w-full flex items-center gap-2">
+                <div className="bg-surface-800 border border-white/5 rounded-xl p-6 shadow-sm flex flex-col backdrop-blur-sm">
+                    <h4 className="text-sm font-bold text-white uppercase mb-4 w-full flex items-center gap-2 font-display tracking-tight">
                         <Activity size={16} className="text-cyan-400" /> Carga de Trabalho Recente
                         <InfoTooltip text="Mede o estresse psicológico e fisiológico total baseado no volume e intensidade das sessões." />
                     </h4>
@@ -152,26 +152,26 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                             <div>
                                 <div className="flex justify-between items-end mb-2">
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Carga Interna (Acumulada 7d)</span>
+                                        <span className="text-[10px] text-surface-400 uppercase font-bold tracking-wider">Carga Interna (Acumulada 7d)</span>
                                         <TrendIndicator current={analyticsMetrics.weeklyLoadSum} previous={analyticsMetrics.weeklyLoadSumPrev} type="percent" />
                                     </div>
-                                    <span className="text-xl font-bold text-white ml-2">{analyticsMetrics.weeklyLoadSum} <span className="text-xs text-slate-500 font-normal">UA</span></span>
+                                    <span className="text-xl font-bold text-white ml-2">{analyticsMetrics.weeklyLoadSum} <span className="text-xs text-surface-500 font-normal">UA</span></span>
                                 </div>
-                                <div className="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+                                <div className="p-4 rounded-xl border border-white/5 bg-surface-900/40">
                                     <div className="flex items-center gap-3">
                                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: analyticsMetrics.loadZone.color }}></div>
                                         <div>
                                             <p className="text-sm font-bold text-white">{analyticsMetrics.loadZone.label}</p>
-                                            <p className="text-[10px] text-slate-500 leading-tight">Baseado no volume e percepção de esforço das últimas sessões.</p>
+                                            <p className="text-[10px] text-surface-500 leading-tight">Baseado no volume e percepção de esforço das últimas sessões.</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-800 relative group">
+                                <div className="bg-surface-900/50 p-3 rounded-lg border border-white/5 relative group">
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] uppercase font-bold text-slate-500 mb-1 flex items-center">
+                                        <span className="text-[10px] uppercase font-bold text-surface-500 mb-1 flex items-center">
                                             Carga Aguda (7d)
                                             <InfoTooltip text="Média de estresse acumulado nos últimos 7 dias. Indica o seu estado de fadiga atual." />
                                         </span>
@@ -181,7 +181,7 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                                         </div>
                                     </div>
                                     {/* Visual Progress Bar */}
-                                    <div className="absolute bottom-0 left-0 h-1 bg-slate-700 w-full rounded-b-lg overflow-hidden">
+                                    <div className="absolute bottom-0 left-0 h-1 bg-surface-700 w-full rounded-b-lg overflow-hidden">
                                         <div
                                             className="h-full transition-all duration-500"
                                             style={{
@@ -191,9 +191,9 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                                         />
                                     </div>
                                 </div>
-                                <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-800 relative group">
+                                <div className="bg-surface-900/50 p-3 rounded-lg border border-white/5 relative group">
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] uppercase font-bold text-slate-500 mb-1 flex items-center">
+                                        <span className="text-[10px] uppercase font-bold text-surface-500 mb-1 flex items-center">
                                             Carga Crônica (28d)
                                             <InfoTooltip text="Capacidade de carga construída nos últimos 28 dias. Indica o seu nível de condicionamento." />
                                         </span>
@@ -203,7 +203,7 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                                         </div>
                                     </div>
                                     {/* Visual Progress Bar (Compared to Acute to show trend) */}
-                                    <div className="absolute bottom-0 left-0 h-1 bg-slate-700 w-full rounded-b-lg overflow-hidden">
+                                    <div className="absolute bottom-0 left-0 h-1 bg-surface-700 w-full rounded-b-lg overflow-hidden">
                                         <div
                                             className="h-full bg-[#6366f1]/50 transition-all duration-500"
                                             style={{
@@ -215,7 +215,7 @@ const ClientDashboardInner: React.FC<ClientDashboardProps> = ({
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center justify-center h-40 text-slate-500 italic text-xs">
+                        <div className="flex items-center justify-center h-40 text-surface-500 italic text-xs">
                             Sem dados de treino suficientes
                         </div>
                     )}

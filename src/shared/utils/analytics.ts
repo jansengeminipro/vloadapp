@@ -174,14 +174,27 @@ export const normalizeMuscleForChart = (specificMuscle: string): string => {
   const m = specificMuscle.toLowerCase().trim();
   if (m.includes('peitoral') || m.includes('peito')) return MuscleGroup.Chest;
   if (m.includes('deltoide') || m.includes('ombro')) return MuscleGroup.Shoulders;
-  if (m.includes('dorsal') || m.includes('trapézio') || m.includes('costas')) return MuscleGroup.Back;
+
+  // Specific Back Sub-groups
+  if (m.includes('dorsal')) return MuscleGroup.Lats;
+  if (m.includes('trapézio') || m.includes('trapezio')) return MuscleGroup.Traps;
+  if (m.includes('eretor') || m.includes('lombar')) return MuscleGroup.UpperBack;
+  if (m.includes('rombóide') || m.includes('romboide') || m.includes('dorso superior')) return MuscleGroup.UpperBack;
+
+  if (m.includes('costas')) return MuscleGroup.UpperBack;
   if (m.includes('bíceps') || m.includes('biceps')) return MuscleGroup.Biceps;
   if (m.includes('tríceps') || m.includes('triceps')) return MuscleGroup.Triceps;
   if (m.includes('quadríceps') || m.includes('quadriceps') || m.includes('coxa')) return MuscleGroup.Quads;
   if (m.includes('isquiotibiais') || m.includes('posterior')) return MuscleGroup.Hamstrings;
   if (m.includes('glúteo') || m.includes('gluteo')) return MuscleGroup.Glutes;
   if (m.includes('panturrilha')) return MuscleGroup.Calves;
-  if (m.includes('adutor')) return MuscleGroup.Adductors;
-  if (m.includes('abdominal') || m.includes('core') || m.includes('abdômen') || m.includes('abdomen')) return MuscleGroup.Abs;
+  if (m.includes('adutor') && !m.includes('abdutor')) return MuscleGroup.Adductors;
+  if (m.includes('abdutor') || m.includes('abdutores')) return MuscleGroup.Abductors;
+  if (m.includes('antebraço') || m.includes('braquiorradial')) return MuscleGroup.Forearms;
+
+  // Core vs Abs Separation
+  if (m.includes('core') || m.includes('transverso') || m.includes('lombar') || m.includes('eretores')) return MuscleGroup.Core;
+  if (m.includes('abdominal') || m.includes('abdômen') || m.includes('abdomen') || m.includes('oblíquos') || m.includes('obliquos')) return MuscleGroup.Abs;
+
   return specificMuscle.charAt(0).toUpperCase() + specificMuscle.slice(1);
 };

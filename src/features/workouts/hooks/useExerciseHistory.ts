@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/shared/lib/supabase';
+import { getExerciseHistory } from '../api/sessionService';
 
 interface HistoryItem {
     date: string;
@@ -38,27 +38,7 @@ export const useExerciseHistory = (): UseExerciseHistoryReturn => {
         openHistoryModal();
 
         try {
-            const { data, error } = await supabase
-                .from('workout_sessions')
-                .select('completed_at, exercises')
-                .eq('student_id', clientId)
-                .order('completed_at', { ascending: false })
-                .limit(10);
-
-            if (error) throw error;
-
-            // Extract only sets for this specific exercise
-            const historyItems: HistoryItem[] = [];
-            data?.forEach(session => {
-                const matchingExercise = session.exercises?.find((ex: any) => ex.name === exerciseName);
-                if (matchingExercise) {
-                    historyItems.push({
-                        date: new Date(session.completed_at).toLocaleDateString(),
-                        setDetails: matchingExercise.setDetails || []
-                    });
-                }
-            });
-
+            const historyItems = await getExerciseHistory(clientId, exerciseName);
             setExerciseHistory(historyItems);
         } catch (err) {
             console.error('Error fetching history:', err);

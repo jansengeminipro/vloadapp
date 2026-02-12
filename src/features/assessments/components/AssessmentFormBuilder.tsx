@@ -20,14 +20,16 @@ const AssessmentFormBuilder: React.FC<AssessmentFormBuilderProps> = ({ schema, v
         <div className="space-y-6">
             {Object.entries(groupedFields).map(([groupName, fields]) => (
                 <div key={groupName} className="space-y-3">
-                    <h5 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 pb-1">{groupName}</h5>
+                    <h5 className="text-sm font-bold text-surface-400 uppercase tracking-wider border-b border-white/5 pb-1 flex items-center gap-2">
+                        {groupName}
+                    </h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {(fields as FormField[]).map(field => (
                             <div key={field.name} className="space-y-1">
-                                <label className="block text-xs font-semibold text-slate-300">
-                                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                                <label className="block text-xs font-semibold text-surface-300 uppercase tracking-wide">
+                                    {field.label} {field.required && <span className="text-accent-error">*</span>}
                                 </label>
-                                <div className="relative">
+                                <div className="relative group">
                                     <input
                                         type={field.type === 'number' ? 'number' : 'text'}
                                         value={values[field.name] || ''}
@@ -35,10 +37,10 @@ const AssessmentFormBuilder: React.FC<AssessmentFormBuilderProps> = ({ schema, v
                                         placeholder={field.placeholder}
                                         min={field.min}
                                         max={field.max}
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-sm text-white focus:border-primary-500 focus:outline-none transition-colors"
+                                        className="w-full bg-surface-950 border border-white/5 rounded-lg py-2.5 px-3 text-sm text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/50 transition-all placeholder-surface-600 group-hover:border-white/10"
                                     />
                                     {field.unit && (
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-medium">
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-surface-500 font-medium pointer-events-none">
                                             {field.unit}
                                         </span>
                                     )}

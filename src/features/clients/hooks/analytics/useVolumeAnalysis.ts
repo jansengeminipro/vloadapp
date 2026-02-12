@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { SavedSession, MuscleGroup } from '@/shared/types';
 import { getExerciseByName } from '@/shared/data/exercises';
 import { safeGetMonday, normalizeMuscleForChart } from '@/shared/utils/analytics';
+import { MUSCLE_COLORS } from '../../constants';
 
 export type TimeRange = '1M' | '3M' | '6M' | 'YTD' | 'ALL';
 
@@ -91,14 +92,29 @@ export const useVolumeAnalysis = (sessions: SavedSession[], timeRange: TimeRange
             }
         });
 
-        const sortedMuscles = Array.from(musclesFound).sort();
-        setActiveMuscleGroups(sortedMuscles);
+        // Ensure ALL muscles are represented in the dataset keys, even if 0
+        const sortedMuscles = Object.keys(MUSCLE_COLORS).sort();
 
+        // We still want to know which ones have ACTUAL data for some UI logic, 
+        // but for the chart, we need consistent keys.
+        // Actually, let's just set activeMuscleGroups to all of them so the "All" button works as expected (shows everything).
+        // Or if we want "Active" to mean "Has Data", we keep musclesFound for that.
+        // But the user requested to see muscles even without data.
         return Array.from(weeklyDataMap.values()).map(week => {
             sortedMuscles.forEach(m => { if (week[m] === undefined) week[m] = 0; });
             return week;
         }).sort((a, b) => a.timestamp - b.timestamp);
     }, [sessions, startDate, volumeCalculation]);
+
+    // Update activeMuscleGroups to include ALL muscles (for filter consistency)
+    useEffect(() => {
+        const allMuscles = Object.keys(MUSCLE_COLORS).sort();
+        // Avoid infinite loop by checking equality roughly or just setting if length differs
+        setActiveMuscleGroups(prev => {
+            if (prev.length === allMuscles.length && prev.every((m, i) => m === allMuscles[i])) return prev;
+            return allMuscles;
+        });
+    }, []);
 
     useEffect(() => {
         if (visibleMuscleGroups.length === 0 && activeMuscleGroups.length > 0) {

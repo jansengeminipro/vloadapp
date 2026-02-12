@@ -99,3 +99,7 @@ export const TEST_CATEGORIES = [
     { id: 'strength', label: 'Aptidão Muscular' },
     { id: 'mobility', label: 'Mobilidade e Equilíbrio' }
 ];
+
+export const CARDIO_TYPES = AVAILABLE_TESTS.filter(t => t.category === 'cardio').map(t => t.id);
+export const STRENGTH_TYPES = AVAILABLE_TESTS.filter(t => t.category === 'strength').map(t => t.id);
+export const BODY_COMP_TYPES = AVAILABLE_TESTS.filter(t => t.category === 'anthropometry').map(t => t.id);

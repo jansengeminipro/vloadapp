@@ -34,46 +34,11 @@ export const getClientSessions = async (clientId: string) => {
     }));
 };
 
-export const getLatestAssessment = async (clientId: string) => {
-    const { data, error } = await supabase
-        .from('client_assessments')
-        .select('*')
-        .eq('client_id', clientId)
-        .in('type', ['pollock3', 'pollock7', 'faulkner', 'guedes', 'bia', 'bmi', 'rce', 'rcq'])
-        .order('date', { ascending: false })
-        .limit(1)
-        .single();
+import { getLatestAssessment as getLatest, getLatestAssessmentsByCategory as getLatestByCategory } from '@/features/assessments/api/assessmentsRepository';
+import { CARDIO_TYPES as C_TYPES, STRENGTH_TYPES as S_TYPES, BODY_COMP_TYPES as B_TYPES } from '@/features/assessments/domain/strategies';
 
-    if (error && error.code !== 'PGRST116') {
-        throw error;
-    }
-    return data as Assessment | null;
-};
-export const CARDIO_TYPES = ['cooper', 'rockport', 'bruce', 'balke_ware', 'mssrt', 'ruffier', 'tc6m', 'ymca', 'lunge_test', 'step_test_queens'];
-export const STRENGTH_TYPES = ['1rm', 'one_rm', 'pushups', 'situps', 'squats', 'plank', 'flexion', 'abdominal', 'arm_curl', 'chair_stand', 'dynamometry'];
-export const BODY_COMP_TYPES = ['pollock3', 'pollock7', 'faulkner', 'guedes', 'bia', 'bmi', 'rce', 'rcq', 'circumferences'];
-
-export const getLatestAssessmentsByCategory = async (clientId: string) => {
-    // We can run 3 queries in parallel for efficiency
-    const fetchLatest = async (types: string[]) => {
-        const { data, error } = await supabase
-            .from('client_assessments')
-            .select('*')
-            .eq('client_id', clientId)
-            .in('type', types)
-            .order('date', { ascending: false })
-            .limit(1)
-            .single();
-
-        if (error && error.code !== 'PGRST116') return null;
-        return data as Assessment | null;
-    };
-
-    const [cardio, strength, bodyComp] = await Promise.all([
-        fetchLatest(CARDIO_TYPES),
-        fetchLatest(STRENGTH_TYPES),
-        fetchLatest(BODY_COMP_TYPES)
-    ]);
-
-    return { cardio, strength, bodyComp };
-};
+export const getLatestAssessment = getLatest;
+export const getLatestAssessmentsByCategory = getLatestByCategory;
+export const CARDIO_TYPES = C_TYPES;
+export const STRENGTH_TYPES = S_TYPES;
+export const BODY_COMP_TYPES = B_TYPES;

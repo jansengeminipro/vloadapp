@@ -248,12 +248,12 @@ export const DraggableExerciseCard: React.FC<DraggableExerciseCardProps> = ({
                     className={`
             group relative flex items-center gap-3 p-0 rounded-xl border transition-all duration-200 overflow-hidden
             ${snapshot.isDragging
-                            ? 'bg-slate-800 border-primary-500 shadow-xl z-50 scale-[1.02]'
-                            : 'bg-slate-900/60 border-slate-800/60 hover:bg-slate-900 hover:border-slate-700'}
+                            ? 'bg-surface-800 border-primary-500 shadow-xl z-50 scale-[1.02]'
+                            : 'bg-surface-900/60 border-white/5 hover:bg-surface-800 hover:border-primary-500/30'}
           `}
                 >
                     {/* Drag Handle - Absolute positioned or flexible on the left */}
-                    <div {...provided.dragHandleProps} className="absolute left-0 top-0 bottom-0 z-20 w-8 flex items-center justify-center text-slate-600 hover:text-slate-400 cursor-grab active:cursor-grabbing bg-slate-900/0 hover:bg-slate-900/50 transition-colors">
+                    <div {...provided.dragHandleProps} className="absolute left-0 top-0 bottom-0 z-20 w-8 flex items-center justify-center text-surface-600 hover:text-surface-400 cursor-grab active:cursor-grabbing bg-surface-900/0 hover:bg-surface-900/50 transition-colors">
                         <GripVertical size={18} />
                     </div>
 
@@ -266,13 +266,13 @@ export const DraggableExerciseCard: React.FC<DraggableExerciseCardProps> = ({
                                     <div key={variant.id} className="flex-[0_0_100%] min-w-0 relative px-3 py-3 flex items-center gap-3">
                                         {/* Thumbnail */}
                                         <div
-                                            className="shrink-0 w-16 h-12 bg-slate-950 rounded-lg border border-slate-800 overflow-hidden relative hidden xs:block cursor-pointer hover:border-primary-500/50 transition-colors"
+                                            className="shrink-0 w-16 h-12 bg-surface-950 rounded-lg border border-white/10 overflow-hidden relative hidden xs:block cursor-pointer hover:border-primary-500/50 transition-colors"
                                             onClick={() => onOpenDetails(exercise, index)} // Open currently displayed? Or internal variant? onOpenDetails takes (exercise, index). Parent expects current Main. Logic holds if we swapped.
                                         >
                                             {thumbUrl ? (
                                                 <img src={thumbUrl} alt="" className="w-full h-full object-cover opacity-60" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-slate-700">
+                                                <div className="w-full h-full flex items-center justify-center text-surface-700">
                                                     <Video size={16} />
                                                 </div>
                                             )}
@@ -281,12 +281,12 @@ export const DraggableExerciseCard: React.FC<DraggableExerciseCardProps> = ({
                                         {/* Content */}
                                         <div className="flex-1 min-w-0 cursor-pointer group/info" onClick={() => onOpenDetails(exercise, index)}>
                                             <div className="flex flex-col">
-                                                <h3 className="text-sm font-bold text-slate-200 truncate pr-2 leading-tight group-hover/info:text-primary-400 transition-colors flex items-center gap-2">
+                                                <h3 className="text-sm font-bold text-surface-200 truncate pr-2 leading-tight group-hover/info:text-primary-400 transition-colors flex items-center gap-2">
                                                     {variant.name}
                                                     {variant.isMain && <Activity size={12} className="text-primary-500" />}
                                                 </h3>
                                                 {/* Meta info matching original clean look, maybe muscle group? */}
-                                                <span className="text-xs text-slate-500 truncate">{variant.muscleGroup}</span>
+                                                <span className="text-xs text-surface-500 truncate">{variant.muscleGroup}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -305,7 +305,7 @@ export const DraggableExerciseCard: React.FC<DraggableExerciseCardProps> = ({
                                     key={dotIdx}
                                     className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${dotIdx === selectedIndex
                                         ? 'bg-primary-500 shadow-sm shadow-primary-500/50'
-                                        : 'bg-slate-700/50'
+                                        : 'bg-surface-700/50'
                                         }`}
                                 ></div>
                             ))}
@@ -316,7 +316,7 @@ export const DraggableExerciseCard: React.FC<DraggableExerciseCardProps> = ({
                     {/* Remove Button - Fixed on Right */}
                     <button
                         onClick={handleRemove}
-                        className="p-2 mr-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors shrink-0 z-20 relative"
+                        className="p-2 mr-2 text-surface-600 hover:text-accent-error hover:bg-accent-error/10 rounded-lg transition-colors shrink-0 z-20 relative"
                         title="Remover exercício"
                     >
                         <Trash2 size={16} />

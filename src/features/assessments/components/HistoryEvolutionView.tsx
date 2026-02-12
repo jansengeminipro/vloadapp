@@ -49,14 +49,14 @@ const HistoryEvolutionView: React.FC<HistoryEvolutionViewProps> = ({ history }) 
     const currentTestLabel = AVAILABLE_TESTS.find(t => t.id === selectedTypeId)?.label;
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 animate-in fade-in">
+        <div className="bg-surface-900 border border-white/5 rounded-2xl p-6 animate-in fade-in">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2 font-display">
                         <TrendingUp className="text-primary-500" size={20} />
                         Evolução por Teste
                     </h3>
-                    <p className="text-sm text-slate-500">Acompanhe o progresso ao longo do tempo.</p>
+                    <p className="text-sm text-surface-500">Acompanhe o progresso ao longo do tempo.</p>
                 </div>
 
                 {/* Test Selector */}
@@ -64,18 +64,18 @@ const HistoryEvolutionView: React.FC<HistoryEvolutionViewProps> = ({ history }) 
                     <select
                         value={selectedTypeId}
                         onChange={(e) => setSelectedTypeId(e.target.value)}
-                        className="appearance-none bg-slate-950 border border-slate-700 text-white pl-4 pr-10 py-2 rounded-lg font-medium focus:outline-none focus:border-primary-500 cursor-pointer"
+                        className="appearance-none bg-surface-950 border border-white/10 text-white pl-4 pr-10 py-2 rounded-lg font-medium focus:outline-none focus:border-primary-500 cursor-pointer hover:bg-surface-800 transition-colors"
                     >
                         {availableTypes.map(t => (
                             <option key={t!.id} value={t!.id}>{t!.label}</option>
                         ))}
                     </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 pointer-events-none" size={16} />
                 </div>
             </div>
 
             {chartData.length < 2 ? (
-                <div className="h-64 flex flex-col items-center justify-center text-slate-500 border border-dashed border-slate-800 rounded-xl bg-slate-950/50">
+                <div className="h-64 flex flex-col items-center justify-center text-surface-500 border border-dashed border-white/10 rounded-xl bg-surface-950/30">
                     <Calendar className="mb-2 opacity-50" size={32} />
                     <p>Dados insuficientes para gráfico.</p>
                     <p className="text-xs">Realize pelo menos 2 avaliações deste tipo.</p>
@@ -90,7 +90,7 @@ const HistoryEvolutionView: React.FC<HistoryEvolutionViewProps> = ({ history }) 
                                     <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} opacity={0.3} />
                             <XAxis
                                 dataKey="date"
                                 stroke="#64748b"
@@ -107,7 +107,7 @@ const HistoryEvolutionView: React.FC<HistoryEvolutionViewProps> = ({ history }) 
                                 domain={['auto', 'auto']}
                             />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', color: '#f8fafc' }}
+                                contentStyle={{ backgroundColor: '#0f172a', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#f8fafc' }}
                                 itemStyle={{ color: '#a78bfa' }}
                                 labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
                                 formatter={(value: number) => [value, 'Score']}
@@ -127,7 +127,7 @@ const HistoryEvolutionView: React.FC<HistoryEvolutionViewProps> = ({ history }) 
                 </div>
             )}
 
-            <div className="mt-4 flex justify-between items-center text-xs text-slate-500 px-4">
+            <div className="mt-4 flex justify-between items-center text-xs text-surface-500 px-4">
                 <span>Primeira Avaliação: {chartData[0]?.date}</span>
                 <span>Última Avaliação: {chartData[chartData.length - 1]?.date}</span>
             </div>

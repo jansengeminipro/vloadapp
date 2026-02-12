@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Client, SavedSession, WorkoutTemplate } from '@/shared/types';
 import { Assessment } from '@/features/assessments/domain/models';
-import { getClientProfile } from '@/services/clientService';
+import { getClientProfile } from '@/features/clients/api/clientService';
 import { getActiveProgram, getCoachTemplates } from '@/services/programService';
 import { getClientSessions, getLatestAssessment, getLatestAssessmentsByCategory } from '@/services/analyticsService';
 

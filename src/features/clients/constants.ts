@@ -2,17 +2,22 @@ import { MuscleGroup, WorkoutTemplate } from '@/shared/types';
 import { EXERCISE_DB } from '@/shared/data/exercises';
 
 export const MUSCLE_COLORS: Record<string, string> = {
-    [MuscleGroup.Chest]: '#3b82f6',
-    [MuscleGroup.Back]: '#10b981',
-    [MuscleGroup.Quads]: '#fbbf24',
-    [MuscleGroup.Hamstrings]: '#f97316',
-    [MuscleGroup.Shoulders]: '#8b5cf6',
-    [MuscleGroup.Triceps]: '#ec4899',
-    [MuscleGroup.Biceps]: '#06b6d4',
-    [MuscleGroup.Calves]: '#64748b',
-    [MuscleGroup.Glutes]: '#db2777',
-    [MuscleGroup.Abs]: '#a8a29e',
-    [MuscleGroup.Adductors]: '#84cc16',
+    [MuscleGroup.Chest]: '#3b82f6',      // Blue 500
+    [MuscleGroup.Lats]: '#059669',       // Emerald 600
+    [MuscleGroup.UpperBack]: '#34d399',  // Emerald 400
+    [MuscleGroup.Traps]: '#c084fc',      // Violet 400 (near Shoulders)
+    [MuscleGroup.Quads]: '#fbbf24',      // Amber 400
+    [MuscleGroup.Hamstrings]: '#f97316', // Orange 500
+    [MuscleGroup.Shoulders]: '#8b5cf6',  // Violet 500
+    [MuscleGroup.Triceps]: '#ec4899',    // Pink 500
+    [MuscleGroup.Biceps]: '#06b6d4',     // Cyan 500
+    [MuscleGroup.Forearms]: '#38bdf8',   // Sky 400
+    [MuscleGroup.Calves]: '#64748b',     // Slate 500
+    [MuscleGroup.Glutes]: '#db2777',     // Pink 600
+    [MuscleGroup.Abs]: '#a8a29e',        // Stone 400
+    [MuscleGroup.Adductors]: '#84cc16',  // Lime 500
+    [MuscleGroup.Abductors]: '#14b8a6',  // Teal 500
+    [MuscleGroup.Core]: '#78716c',       // Stone 500
 };
 
 export const ANALYTICS_COLORS = {

@@ -133,30 +133,30 @@ const WorkoutRunner: React.FC = () => {
     const activeExercise = template.exercises[activeExerciseIndex];
 
     return (
-        <div className="min-h-screen bg-slate-950 pb-20 flex flex-col">
+        <div className="min-h-screen bg-surface-950 pb-20 flex flex-col animate-in fade-in duration-500">
             {/* Header */}
-            <div className="bg-slate-900 p-4 border-b border-slate-800 flex justify-between items-center sticky top-0 z-50">
-                <button onClick={() => navigate(-1)} className="p-2 text-slate-400 hover:text-white"><ChevronLeft /></button>
+            <div className="bg-surface-900 p-4 border-b border-white/5 flex justify-between items-center sticky top-0 z-50">
+                <button onClick={() => navigate(-1)} className="p-2 text-surface-400 hover:text-white hover:bg-surface-800 rounded-full transition-colors"><ChevronLeft /></button>
                 <div className="flex flex-col items-center">
-                    <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Em Andamento</span>
-                    <h1 className="text-white font-bold">{template.name}</h1>
+                    <span className="text-xs text-surface-500 font-bold uppercase tracking-wider font-display">Em Andamento</span>
+                    <h1 className="text-white font-bold font-display">{template.name}</h1>
                 </div>
-                <div className="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+                <div className="flex items-center gap-2 bg-surface-800 px-3 py-1 rounded-full border border-white/5 shadow-inner">
                     <Clock size={14} className="text-primary-400" />
-                    <span className="text-white font-mono text-sm">{formatTime(timer)}</span>
+                    <span className="text-white font-mono text-sm font-bold">{formatTime(timer)}</span>
                 </div>
             </div>
 
             {/* Exercise Scroller */}
-            <div className="bg-slate-900/50 backdrop-blur-sm p-4 border-b border-slate-800 overflow-x-auto">
+            <div className="bg-surface-900/50 backdrop-blur-sm p-4 border-b border-white/5 overflow-x-auto">
                 <div className="flex gap-2 min-w-max">
                     {template.exercises.map((ex, idx) => (
                         <button
                             key={idx}
                             onClick={() => setActiveExerciseIndex(idx)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeExerciseIndex === idx
-                                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/50'
-                                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeExerciseIndex === idx
+                                ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20 scale-105'
+                                : 'bg-surface-800 text-surface-400 hover:bg-surface-700 hover:text-white'
                                 }`}
                         >
                             {idx + 1}. {ex.name}
@@ -169,7 +169,7 @@ const WorkoutRunner: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
 
                 {/* Active Exercise Card */}
-                <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-xl">
+                <div className="bg-surface-800 border border-white/5 rounded-xl overflow-hidden shadow-xl">
                     {activeExercise.videoUrl && (
                         <div className="aspect-video bg-black relative">
                             {/* Simple video placeholder or iframe */}
@@ -178,22 +178,21 @@ const WorkoutRunner: React.FC = () => {
                                 className="w-full h-full opacity-60 pointer-events-none"
                                 title="Exercise Video"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-surface-900 to-transparent"></div>
                         </div>
                     )}
 
                     <div className="p-6 relative">
                         {!activeExercise.videoUrl && <div className="absolute top-0 left-0 w-full h-1 bg-primary-500"></div>}
-                        <h2 className="text-2xl font-bold text-white mb-1">{activeExercise.name}</h2>
-                        <div className="flex gap-4 text-sm text-slate-400 mb-6">
-                            <span>{activeExercise.muscleGroup}</span>
-                            <span>•</span>
-                            <span>Descanso: {activeExercise.restSeconds}s</span>
+                        <h2 className="text-2xl font-bold text-white mb-1 font-display">{activeExercise.name}</h2>
+                        <div className="flex gap-4 text-sm text-surface-400 mb-6 font-medium">
+                            <span className="bg-surface-900 px-2 py-1 rounded border border-white/5">{activeExercise.muscleGroup}</span>
+                            <span className="bg-surface-900 px-2 py-1 rounded border border-white/5">Descanso: {activeExercise.restSeconds}s</span>
                         </div>
 
                         {/* Sets Table */}
                         <div className="space-y-3">
-                            <div className="grid grid-cols-10 gap-2 text-xs text-slate-500 font-bold uppercase text-center mb-2 px-2">
+                            <div className="grid grid-cols-10 gap-2 text-xs text-surface-500 font-bold uppercase text-center mb-2 px-2 tracking-wider">
                                 <div className="col-span-1">#</div>
                                 <div className="col-span-3">kg</div>
                                 <div className="col-span-3">Reps</div>
@@ -203,14 +202,14 @@ const WorkoutRunner: React.FC = () => {
                             {Array.from({ length: activeExercise.sets }).map((_, setIdx) => {
                                 const isCompleted = completedSets.has(`${activeExerciseIndex}-${setIdx}`);
                                 return (
-                                    <div key={setIdx} className={`grid grid-cols-10 gap-2 items-center p-2 rounded-lg border transition-all ${isCompleted ? 'bg-emerald-900/20 border-emerald-500/30' : 'bg-slate-900 border-slate-700'
+                                    <div key={setIdx} className={`grid grid-cols-10 gap-2 items-center p-2 rounded-lg border transition-all ${isCompleted ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-surface-900 border-white/5'
                                         }`}>
-                                        <div className="col-span-1 text-center font-bold text-slate-400">{setIdx + 1}</div>
+                                        <div className="col-span-1 text-center font-bold text-surface-400">{setIdx + 1}</div>
                                         <div className="col-span-3">
                                             <input
                                                 type="number"
                                                 placeholder="0"
-                                                className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-center text-white font-bold focus:border-primary-500 outline-none"
+                                                className="w-full bg-surface-950 border border-white/5 rounded p-2 text-center text-white font-bold focus:border-primary-500 outline-none focus:ring-1 focus:ring-primary-500/50 transition-all placeholder-surface-700"
                                                 onChange={(e) => updateSetData(activeExerciseIndex, setIdx, 'weight', e.target.value)}
                                             />
                                         </div>
@@ -218,14 +217,14 @@ const WorkoutRunner: React.FC = () => {
                                             <input
                                                 type="number"
                                                 placeholder={activeExercise.targetReps.toString()}
-                                                className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-center text-white font-bold focus:border-primary-500 outline-none"
+                                                className="w-full bg-surface-950 border border-white/5 rounded p-2 text-center text-white font-bold focus:border-primary-500 outline-none focus:ring-1 focus:ring-primary-500/50 transition-all placeholder-surface-700"
                                                 onChange={(e) => updateSetData(activeExerciseIndex, setIdx, 'reps', e.target.value)}
                                             />
                                         </div>
                                         <div className="col-span-3 flex justify-center">
                                             <button
                                                 onClick={() => toggleSetComplete(activeExerciseIndex, setIdx)}
-                                                className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500 hover:bg-slate-700'
+                                                className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${isCompleted ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-105' : 'bg-surface-800 text-surface-500 hover:bg-surface-700 hover:text-white'
                                                     }`}
                                             >
                                                 <CheckCircle size={20} />
@@ -243,21 +242,21 @@ const WorkoutRunner: React.FC = () => {
                     <button
                         disabled={activeExerciseIndex === 0}
                         onClick={() => setActiveExerciseIndex(prev => prev - 1)}
-                        className="flex-1 py-4 rounded-xl bg-slate-800 text-slate-400 disabled:opacity-50 font-bold"
+                        className="flex-1 py-4 rounded-xl bg-surface-800 text-surface-400 disabled:opacity-50 font-bold hover:bg-surface-700 hover:text-white transition-colors border border-white/5"
                     >
                         Anterior
                     </button>
                     {activeExerciseIndex < template.exercises.length - 1 ? (
                         <button
                             onClick={() => setActiveExerciseIndex(prev => prev + 1)}
-                            className="flex-1 py-4 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-500"
+                            className="flex-1 py-4 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-500 shadow-lg shadow-primary-500/20 transition-all active:scale-[0.98]"
                         >
                             Próximo
                         </button>
                     ) : (
                         <button
                             onClick={finishWorkout}
-                            className="flex-1 py-4 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-500 flex items-center justify-center gap-2"
+                            className="flex-1 py-4 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-500 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98]"
                         >
                             <Save size={20} /> Finalizar
                         </button>

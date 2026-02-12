@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { MuscleGroup } from '@/shared/types';
 
 // Lazy load the large SVG component (~500KB) to reduce initial bundle size
-const DetailedBodySVG = React.lazy(() => import('./DetailedBodySVG'));
+const DetailedBodySVG = React.lazy(() => import('./DetailedBodySVG_V2'));
 
 // Skeleton loader for the SVG while it loads
 const HeatmapSkeleton = () => (

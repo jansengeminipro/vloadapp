@@ -93,7 +93,7 @@ const LatestAssessmentView: React.FC<LatestAssessmentViewProps> = ({ history }) 
 
     if (history.length === 0) {
         return (
-            <div className="text-center py-12 text-slate-500 italic bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+            <div className="text-center py-12 text-surface-500 italic bg-surface-900/50 rounded-2xl border border-white/5 border-dashed">
                 Nenhuma avaliação realizada ainda.
             </div>
         );
@@ -105,9 +105,9 @@ const LatestAssessmentView: React.FC<LatestAssessmentViewProps> = ({ history }) 
                 const catLabel = TEST_CATEGORIES.find(c => c.id === catId)?.label || 'Outros';
 
                 return (
-                    <div key={catId} className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-sm">
-                        <div className="px-6 py-4 bg-slate-950/50 border-b border-slate-800 flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <div key={catId} className="bg-surface-900 border border-white/5 rounded-3xl overflow-hidden shadow-sm">
+                        <div className="px-6 py-4 bg-surface-950/50 border-b border-white/5 flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2 font-display">
                                 {catId === 'cardio' && <Activity className="text-primary-500" />}
                                 {catId === 'anthropometry' && <Ruler className="text-primary-500" />}
                                 {catId === 'strength' && <Dumbbell className="text-primary-500" />}
@@ -116,7 +116,7 @@ const LatestAssessmentView: React.FC<LatestAssessmentViewProps> = ({ history }) 
 
                         </div>
 
-                        <div className="divide-y divide-slate-800/50">
+                        <div className="divide-y divide-white/5">
                             {assessments.map(assessment => {
                                 const testInfo = AVAILABLE_TESTS.find(t => t.id === assessment.type);
                                 const result = assessment.data._result as AnalysisResult;
@@ -134,33 +134,33 @@ const LatestAssessmentView: React.FC<LatestAssessmentViewProps> = ({ history }) 
                                     <button
                                         key={assessment.id}
                                         onClick={() => setSelectedAssessment(assessment)}
-                                        className="w-full text-left p-6 hover:bg-slate-800/50 transition-all group flex flex-col md:flex-row md:items-center gap-6"
+                                        className="w-full text-left p-6 hover:bg-surface-800/50 transition-all group flex flex-col md:flex-row md:items-center gap-6"
                                     >
                                         {/* Left: Label & Value */}
                                         <div className="md:w-1/3 min-w-[200px]">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-colors">
+                                                <span className="text-sm font-bold text-surface-300 group-hover:text-white transition-colors">
                                                     {testInfo?.label || assessment.type}
                                                 </span>
-                                                <Info size={14} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                <Info size={14} className="text-surface-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                                             </div>
 
                                             <div className="flex items-end gap-3">
-                                                <span className="text-3xl font-black text-white leading-none">
+                                                <span className="text-3xl font-black text-white leading-none font-display">
                                                     {result.score}
                                                 </span>
                                                 {hasEvolution && (
                                                     <span className={`text-xs font-bold mb-1 px-1.5 py-0.5 rounded ${(isBetter && diff > 0) || (!isBetter && diff < 0)
                                                         ? 'bg-emerald-500/10 text-emerald-500'
                                                         : (diff === 0)
-                                                            ? 'bg-slate-700 text-slate-400'
+                                                            ? 'bg-surface-700 text-surface-400'
                                                             : 'bg-red-500/10 text-red-500'
                                                         }`}>
                                                         {diff > 0 ? '+' : ''}{diff.toFixed(1)}
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className="text-xs text-slate-500 mt-1 uppercase font-semibold">
+                                            <div className="text-xs text-surface-500 mt-1 uppercase font-semibold">
                                                 {result.classification}
                                             </div>
                                         </div>
@@ -178,7 +178,7 @@ const LatestAssessmentView: React.FC<LatestAssessmentViewProps> = ({ history }) 
                                             />
                                         </div>
 
-                                        <div className="hidden md:block text-slate-600 group-hover:text-primary-500 transition-colors">
+                                        <div className="hidden md:block text-surface-600 group-hover:text-primary-500 transition-colors">
                                             <ChevronRight size={20} />
                                         </div>
                                     </button>

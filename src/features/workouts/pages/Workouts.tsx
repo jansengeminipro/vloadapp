@@ -24,18 +24,24 @@ const getThumbnailUrl = (url?: string) => {
 const getMuscleIcon = (muscle: string | 'All') => {
   switch (muscle) {
     case MuscleGroup.Chest: return <Box size={18} />;
-    case MuscleGroup.Back: return <Anchor size={18} />;
+    case MuscleGroup.Lats:
+    case MuscleGroup.UpperBack:
+    case MuscleGroup.Traps: return <Anchor size={18} />;
     case MuscleGroup.Quads:
     case MuscleGroup.Hamstrings:
     case MuscleGroup.Calves:
-    case MuscleGroup.Glutes: return <ArrowDown size={18} />;
+    case MuscleGroup.Glutes:
+    case MuscleGroup.Adductors:
+    case MuscleGroup.Abductors: return <ArrowDown size={18} />;
     case MuscleGroup.Shoulders: return <ChevronUp size={18} />;
     case MuscleGroup.Biceps:
-    case MuscleGroup.Triceps: return <Zap size={18} />;
+    case MuscleGroup.Triceps:
+    case MuscleGroup.Forearms: return <Zap size={18} />;
     case 'All': return <LayoutGrid size={18} />;
     default: return <Dumbbell size={18} />;
   }
 };
+
 
 import { DraggableExerciseCard } from '../components/DraggableExerciseCard';
 
@@ -499,11 +505,11 @@ const Workouts: React.FC = () => {
             <ChevronLeft size={24} />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-white">Biblioteca de Treinos</h1>
-            <p className="text-slate-400">Gerencie modelos de treino e atribua prescrições.</p>
+            <h1 className="text-3xl font-bold text-white font-display tracking-tight">Biblioteca de Treinos</h1>
+            <p className="text-surface-400">Gerencie modelos de treino e atribua prescrições.</p>
           </div>
         </div>
-        <button onClick={handleCreate} className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-lg shadow-primary-600/20">
+        <button onClick={handleCreate} className="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-lg shadow-primary-600/20 hover:scale-105 active:scale-95">
           <Plus size={20} /> Criar Modelo
         </button>
       </div>
@@ -523,18 +529,18 @@ const Workouts: React.FC = () => {
             <div
               key={template.id}
               onClick={() => setExpandedTemplateId(prev => prev === template.id ? null : template.id)}
-              className={`bg-slate-800 border rounded-xl p-6 transition-all group relative shadow-lg flex flex-col h-full cursor-pointer hover:border-slate-500 ${isExpanded ? 'ring-1 ring-primary-500 border-primary-500/50' : 'border-slate-700'}`}
+              className={`bg-surface-800 border rounded-xl p-6 transition-all group relative shadow-lg flex flex-col h-full cursor-pointer hover:border-primary-500/30 ${isExpanded ? 'ring-1 ring-primary-500 border-primary-500/50' : 'border-white/5'}`}
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1 min-w-0">
-                  <h3 className={`text-xl font-bold mb-1 truncate pr-2 transition-colors ${isExpanded ? 'text-primary-400' : 'text-white'}`}>{template.name}</h3>
-                  <span className="inline-block bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded">{template.focus}</span>
+                  <h3 className={`text-xl font-bold mb-1 truncate pr-2 transition-colors font-display ${isExpanded ? 'text-primary-400' : 'text-white'}`}>{template.name}</h3>
+                  <span className="inline-block bg-surface-700 text-surface-300 text-xs px-2 py-1 rounded">{template.focus}</span>
                 </div>
                 <div className="flex gap-1 shrink-0 relative z-10">
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); openAssignModal(template); }}
-                    className="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-700 rounded-lg transition-colors"
+                    className="p-2 text-surface-400 hover:text-emerald-400 hover:bg-surface-700 rounded-lg transition-colors"
                     title="Atribuir à Agenda"
                   >
                     <UserPlus size={18} />
@@ -577,24 +583,24 @@ const Workouts: React.FC = () => {
 
               {/* Expanded Content */}
               {isExpanded && (
-                <div className="border-t border-slate-700 pt-4 mb-4 animate-in fade-in slide-in-from-top-2">
+                <div className="border-t border-white/5 pt-4 mb-4 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-bold text-slate-500 uppercase">Lista de Exercícios</h4>
-                    <span className="text-[10px] text-slate-600 font-mono">Séries x Reps</span>
+                    <h4 className="text-xs font-bold text-surface-500 uppercase">Lista de Exercícios</h4>
+                    <span className="text-[10px] text-surface-600 font-mono">Séries x Reps</span>
                   </div>
                   <ul className="space-y-2">
                     {template.exercises.map((ex, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
+                      <li key={idx} className="flex items-start gap-2 text-sm text-surface-300">
                         <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0"></span>
                         <span className="flex-1">{ex.name}</span>
-                        <span className="text-slate-500 text-xs font-mono whitespace-nowrap pt-0.5">{ex.sets} x {ex.targetReps}</span>
+                        <span className="text-surface-500 text-xs font-mono whitespace-nowrap pt-0.5">{ex.sets} x {ex.targetReps}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              <div className={`pt-4 border-t border-slate-700 flex justify-between items-center text-xs text-slate-500 ${isExpanded ? 'mt-2' : ''}`}>
+              <div className={`pt-4 border-t border-white/5 flex justify-between items-center text-xs text-surface-500 ${isExpanded ? 'mt-2' : ''}`}>
                 <span>Modificado: {template.lastModified}</span>
                 <span className="flex items-center gap-1 text-primary-500/80 font-medium">
                   {isExpanded ? <><ChevronUp size={12} /> Recolher</> : <><ChevronDown size={12} /> Ver detalhes</>}
@@ -699,24 +705,24 @@ const Workouts: React.FC = () => {
     if (!editingTemplate) return null;
     return (
       <div className="space-y-6 max-w-5xl mx-auto pb-20">
-        <div className="flex items-center justify-between sticky top-0 bg-slate-950/90 backdrop-blur-md py-4 z-40 border-b border-slate-800">
+        <div className="flex items-center justify-between sticky top-0 bg-surface-950/90 backdrop-blur-md py-4 z-40 border-b border-white/5">
           <div className="flex items-center gap-4 flex-1">
-            <button type="button" onClick={() => setView('list')} className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"><ChevronLeft size={24} /></button>
+            <button type="button" onClick={() => setView('list')} className="p-2 hover:bg-surface-800 rounded-lg text-surface-400 hover:text-white transition-colors"><ChevronLeft size={24} /></button>
             <input
               type="text"
               value={editingTemplate.name}
               onChange={(e) => setEditingTemplate({ ...editingTemplate, name: e.target.value })}
-              className="bg-transparent text-xl md:text-2xl font-bold text-white border-none focus:ring-0 placeholder-slate-600 w-full"
+              className="bg-transparent text-xl md:text-2xl font-bold text-white border-none focus:ring-0 placeholder-surface-600 w-full font-display tracking-tight"
               placeholder="Nome do Modelo"
             />
           </div>
           <div className="flex gap-2">
-            <button type="button" onClick={() => setView('list')} className="px-3 md:px-4 py-2 text-slate-400 hover:text-white text-sm font-medium">Cancelar</button>
+            <button type="button" onClick={() => setView('list')} className="px-3 md:px-4 py-2 text-surface-400 hover:text-white text-sm font-medium">Cancelar</button>
             <button
               type="button"
               onClick={handleSave}
               disabled={loading}
-              className="bg-primary-600 hover:bg-primary-500 text-white px-4 md:px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg shadow-primary-900/20 disabled:opacity-50"
+              className="bg-primary-600 hover:bg-primary-500 text-white px-4 md:px-6 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg shadow-primary-500/20 disabled:opacity-50 hover:scale-105 active:scale-95 transition-all duration-200"
             >
               <Save size={18} /> {loading ? 'Salvando...' : 'Salvar'}
             </button>
@@ -730,13 +736,13 @@ const Workouts: React.FC = () => {
           </div>
         )}
 
-        <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-6 flex flex-wrap gap-4 items-center">
+        <div className="bg-surface-900 p-4 rounded-xl border border-white/5 mb-6 flex flex-wrap gap-4 items-center shadow-lg">
           <div className="flex items-center gap-2">
-            <label className="text-xs font-bold text-slate-500 uppercase">Foco do Treino:</label>
+            <label className="text-xs font-bold text-surface-500 uppercase">Foco do Treino:</label>
             <select
               value={editingTemplate.focus}
               onChange={(e) => setEditingTemplate({ ...editingTemplate, focus: e.target.value })}
-              className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:ring-1 ring-primary-500 outline-none"
+              className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-1.5 text-sm text-white focus:ring-1 ring-primary-500 outline-none"
             >
               <option value="Geral">Geral</option>
               <option value="Hipertrofia">Hipertrofia</option>
@@ -774,7 +780,7 @@ const Workouts: React.FC = () => {
               )}
             </Droppable>
           </DragDropContext>
-          <button type="button" onClick={() => { setShowExerciseModal(true); setIsCreatingExercise(false) }} className="w-full py-8 border-2 border-dashed border-slate-700 rounded-xl text-slate-500 hover:text-primary-400 hover:border-primary-500/50 hover:bg-slate-800/30 transition-all flex flex-col items-center justify-center gap-2">
+          <button type="button" onClick={() => { setShowExerciseModal(true); setIsCreatingExercise(false) }} className="w-full py-8 border-2 border-dashed border-surface-700 rounded-xl text-surface-500 hover:text-primary-400 hover:border-primary-500/50 hover:bg-surface-800/30 transition-all flex flex-col items-center justify-center gap-2">
             <Plus size={32} /> <span className="font-medium">Adicionar Exercício</span>
           </button>
         </div>
@@ -788,27 +794,27 @@ const Workouts: React.FC = () => {
 
       {/* Assignment Modal */}
       {showAssignModal && templateToAssign && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-surface-900 border border-white/5 rounded-xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-4 border-b border-white/5 flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2 font-display">
                   <UserPlus size={20} className="text-emerald-500" /> Adicionar ao Programa
                 </h2>
-                <p className="text-xs text-slate-500 truncate max-w-[250px]">Treino: {templateToAssign.name}</p>
+                <p className="text-xs text-surface-500 truncate max-w-[250px]">Treino: {templateToAssign.name}</p>
               </div>
-              <button type="button" onClick={() => setShowAssignModal(false)} className="text-slate-400 hover:text-white"><X size={20} /></button>
+              <button type="button" onClick={() => setShowAssignModal(false)} className="text-surface-400 hover:text-white"><X size={20} /></button>
             </div>
 
-            <div className="p-4 border-b border-slate-800">
+            <div className="p-4 border-b border-white/5">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-500" size={16} />
                 <input
                   type="text"
                   placeholder="Pesquisar aluno..."
                   value={clientSearchTerm}
                   onChange={(e) => setClientSearchTerm(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:border-primary-500 outline-none"
+                  className="w-full bg-surface-950 border border-white/5 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:border-primary-500 outline-none placeholder-surface-600"
                 />
               </div>
             </div>
@@ -825,12 +831,12 @@ const Workouts: React.FC = () => {
                         isSelected ? prev.filter(id => id !== client.id) : [...prev, client.id]
                       );
                     }}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors border ${isSelected ? 'bg-primary-500/10 border-primary-500/30' : 'hover:bg-slate-800 border-transparent'
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors border ${isSelected ? 'bg-primary-500/10 border-primary-500/30' : 'hover:bg-surface-800 border-transparent'
                       }`}
                   >
-                    <img src={client.avatarUrl} className="w-8 h-8 rounded-full border border-slate-700" alt="" />
-                    <span className={`flex-1 text-left text-sm font-medium ${isSelected ? 'text-white' : 'text-slate-300'}`}>{client.name}</span>
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-primary-500 border-primary-500' : 'border-slate-600 bg-slate-900'
+                    <img src={client.avatarUrl} className="w-8 h-8 rounded-full border border-white/10" alt="" />
+                    <span className={`flex-1 text-left text-sm font-medium ${isSelected ? 'text-white' : 'text-surface-300'}`}>{client.name}</span>
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-primary-500 border-primary-500' : 'border-surface-600 bg-surface-900'
                       }`}>
                       {isSelected && <Check size={12} className="text-white" />}
                     </div>
@@ -838,31 +844,31 @@ const Workouts: React.FC = () => {
                 );
               })}
               {availableClients.length === 0 && (
-                <p className="p-4 text-center text-slate-500 text-sm italic">Nenhum aluno encontrado.</p>
+                <p className="p-4 text-center text-surface-500 text-sm italic">Nenhum aluno encontrado.</p>
               )}
             </div>
 
-            <div className="p-4 border-t border-slate-800 bg-slate-900/30 space-y-4">
+            <div className="p-4 border-t border-white/5 bg-surface-900/30 space-y-4">
               <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Definir Período (Opcional)</h4>
+                <h4 className="text-xs font-bold text-surface-500 uppercase mb-2 font-display">Definir Período (Opcional)</h4>
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="text-xs text-slate-400 block mb-1">Início (Opcional)</label>
+                    <label className="text-xs text-surface-400 block mb-1">Início (Opcional)</label>
                     <input
                       type="date"
                       value={assignmentDates.startDate}
                       onChange={e => setAssignmentDates({ ...assignmentDates, startDate: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white [color-scheme:dark] focus:outline-none focus:border-primary-500 placeholder-slate-600"
+                      className="w-full bg-surface-950 border border-white/5 rounded p-2 text-xs text-white [color-scheme:dark] focus:outline-none focus:border-primary-500 placeholder-surface-600"
                       placeholder="Manter atual"
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="text-xs text-slate-400 block mb-1">Fim (Opcional)</label>
+                    <label className="text-xs text-surface-400 block mb-1">Fim (Opcional)</label>
                     <input
                       type="date"
                       value={assignmentDates.endDate}
                       onChange={e => setAssignmentDates({ ...assignmentDates, endDate: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs text-white [color-scheme:dark] focus:outline-none focus:border-primary-500 placeholder-slate-600"
+                      className="w-full bg-surface-950 border border-white/5 rounded p-2 text-xs text-white [color-scheme:dark] focus:outline-none focus:border-primary-500 placeholder-surface-600"
                       placeholder="Manter atual"
                     />
                   </div>
@@ -870,7 +876,7 @@ const Workouts: React.FC = () => {
               </div>
 
               <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-1"><Calendar size={12} /> Agendamento Semanal</h4>
+                <h4 className="text-xs font-bold text-surface-500 uppercase mb-2 flex items-center gap-1 font-display"><Calendar size={12} /> Agendamento Semanal</h4>
                 <div className="flex gap-2 justify-between">
                   {WEEKDAYS.map(day => {
                     const isDaySelected = selectedScheduleDays.includes(day.val);
@@ -880,7 +886,7 @@ const Workouts: React.FC = () => {
                         onClick={() => toggleScheduleDay(day.val)}
                         className={`flex-1 h-8 rounded text-[10px] font-bold transition-all border ${isDaySelected
                           ? 'bg-primary-600 text-white border-primary-500'
-                          : 'bg-slate-950 text-slate-500 border-slate-700 hover:border-slate-500'
+                          : 'bg-surface-950 text-surface-500 border-white/5 hover:border-surface-500'
                           }`}
                         title={day.label}
                       >
@@ -892,14 +898,14 @@ const Workouts: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex flex-col gap-3">
+            <div className="p-4 border-t border-white/5 bg-surface-900/50 flex flex-col gap-3">
               <div className="flex gap-3">
-                <button type="button" onClick={() => setShowAssignModal(false)} className="flex-1 py-2 text-slate-400 hover:text-white text-sm font-medium">Cancelar</button>
+                <button type="button" onClick={() => setShowAssignModal(false)} className="flex-1 py-2 text-surface-400 hover:text-white text-sm font-medium">Cancelar</button>
                 <button
                   type="button"
                   onClick={handleAssignToClients}
                   disabled={selectedClientIds.length === 0 || isAssigning}
-                  className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-lg text-sm font-bold shadow-lg flex items-center justify-center gap-2"
+                  className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-lg text-sm font-bold shadow-lg flex items-center justify-center gap-2 shadow-emerald-600/20"
                 >
                   {isAssigning ? 'Salvando...' : `Confirmar (${selectedClientIds.length})`}
                 </button>
@@ -1057,17 +1063,17 @@ const Workouts: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmation && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-sm shadow-2xl p-6">
-            <h3 className="text-lg font-bold text-white mb-2">Excluir Modelo?</h3>
-            <p className="text-slate-400 text-sm mb-6">Tem certeza que deseja excluir este modelo de treino? Esta ação não pode ser desfeita.</p>
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-surface-900 border border-white/5 rounded-xl w-full max-w-sm shadow-2xl p-6">
+            <h3 className="text-lg font-bold text-white mb-2 font-display">Excluir Modelo?</h3>
+            <p className="text-surface-400 text-sm mb-6">Tem certeza que deseja excluir este modelo de treino? Esta ação não pode ser desfeita.</p>
             <div className="flex justify-end gap-3">
-              <button type="button" onClick={() => setDeleteConfirmation(null)} className="px-4 py-2 text-slate-400 hover:text-white font-medium">Cancelar</button>
+              <button type="button" onClick={() => setDeleteConfirmation(null)} className="px-4 py-2 text-surface-400 hover:text-white font-medium">Cancelar</button>
               <button
                 type="button"
                 onClick={confirmDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold shadow-lg disabled:opacity-50"
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold shadow-lg disabled:opacity-50 hover:shadow-red-600/20"
               >
                 {isDeleting ? 'Excluindo...' : 'Excluir'}
               </button>

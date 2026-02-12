@@ -16,17 +16,9 @@ export {
 } from './analyticsService';
 
 // Assessments
-export {
-    saveAssessment,
-    getClientAssessments,
-    deleteAssessment
-} from './assessmentsService';
 
-// Clients
-export {
-    getClientProfile,
-    updateClientProfile
-} from './clientService';
+
+
 
 // Programs
 export {

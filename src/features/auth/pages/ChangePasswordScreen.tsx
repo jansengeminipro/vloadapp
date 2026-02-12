@@ -44,45 +44,45 @@ const ChangePasswordScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
+        <div className="min-h-screen bg-surface-950 flex items-center justify-center p-4">
+            <div className="w-full max-w-md bg-surface-900 border border-white/5 rounded-2xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex flex-col items-center mb-6">
                     <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mb-4">
                         <Lock className="text-amber-500 w-8 h-8" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white text-center">Defina sua Senha</h1>
-                    <p className="text-slate-400 text-sm text-center mt-2">
+                    <h1 className="text-2xl font-bold text-white text-center font-display">Defina sua Senha</h1>
+                    <p className="text-surface-400 text-sm text-center mt-2">
                         Por segurança, você deve alterar sua senha temporária antes de continuar.
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Nova Senha</label>
+                        <label className="block text-xs font-bold text-surface-400 uppercase mb-1">Nova Senha</label>
                         <input
                             type="password"
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:border-primary-500 focus:outline-none"
+                            className="w-full bg-surface-950 border border-white/5 rounded-lg p-3 text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/50 transition-all placeholder-surface-600"
                             placeholder="Mínimo 6 caracteres"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Confirmar Senha</label>
+                        <label className="block text-xs font-bold text-surface-400 uppercase mb-1">Confirmar Senha</label>
                         <input
                             type="password"
                             required
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:border-primary-500 focus:outline-none"
+                            className="w-full bg-surface-950 border border-white/5 rounded-lg p-3 text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/50 transition-all placeholder-surface-600"
                             placeholder="Repita a senha"
                         />
                     </div>
 
                     {error && (
-                        <div className="p-3 rounded-lg bg-red-500/10 text-red-500 text-sm text-center">
+                        <div className="p-3 rounded-lg bg-accent-error/10 text-accent-error text-sm text-center border border-accent-error/20 animate-in fade-in">
                             {error}
                         </div>
                     )}
@@ -90,7 +90,7 @@ const ChangePasswordScreen: React.FC = () => {
                     <button
                         type="submit"
                         disabled={loading || !match || !valid}
-                        className="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 active:scale-95"
                     >
                         {loading ? 'Salvando...' : 'Atualizar Senha'}
                     </button>
@@ -98,7 +98,7 @@ const ChangePasswordScreen: React.FC = () => {
                     <button
                         type="button"
                         onClick={() => signOut()}
-                        className="w-full text-slate-500 text-sm hover:text-white transition-colors py-2"
+                        className="w-full text-surface-500 text-sm hover:text-white transition-colors py-2"
                     >
                         Sair
                     </button>

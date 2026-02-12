@@ -69,40 +69,40 @@ const StudentDashboard: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 pb-20">
+        <div className="min-h-screen bg-surface-950 pb-20 animate-in fade-in duration-500">
             {/* Header */}
-            <div className="bg-slate-900 p-6 rounded-b-3xl border-b border-slate-800 shadow-xl">
+            <div className="bg-surface-900 p-6 rounded-b-3xl border-b border-white/5 shadow-xl">
                 <div className="flex justify-between items-start mb-6">
                     <div onClick={() => navigate('/profile')} className="cursor-pointer group">
-                        <h1 className="text-2xl font-bold text-white mb-1 group-hover:text-primary-400 transition-colors flex items-center gap-2">
+                        <h1 className="text-2xl font-bold text-white mb-1 group-hover:text-primary-400 transition-colors flex items-center gap-2 font-display">
                             Olá, {user?.user_metadata.full_name?.split(' ')[0] || 'Aluno'}
-                            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-300 group-hover:bg-primary-500/20 group-hover:text-primary-400 transition-colors">
+                            <div className="w-8 h-8 rounded-full bg-surface-800 flex items-center justify-center text-xs font-bold text-surface-300 group-hover:bg-primary-500/20 group-hover:text-primary-400 transition-colors border border-white/5">
                                 {user?.user_metadata.full_name ? user.user_metadata.full_name.substring(0, 2).toUpperCase() : 'AL'}
                             </div>
                         </h1>
-                        <p className="text-slate-400 text-sm">Toque para ver perfil</p>
+                        <p className="text-surface-400 text-sm">Toque para ver perfil</p>
                     </div>
-                    <button onClick={signOut} className="p-2 bg-slate-800 rounded-full text-slate-400 hover:text-white">
+                    <button onClick={signOut} className="p-2 bg-surface-800 rounded-full text-surface-400 hover:text-white transition-colors hover:bg-surface-700">
                         <LogOut size={18} />
                     </button>
                 </div>
 
                 {/* Next Workout Card */}
                 {loading ? (
-                    <div className="animate-pulse h-32 bg-slate-800 rounded-2xl"></div>
+                    <div className="animate-pulse h-32 bg-surface-800 rounded-2xl border border-white/5"></div>
                 ) : nextWorkout ? (
-                    <div className="bg-gradient-to-br from-primary-600 to-primary-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform cursor-pointer">
+                    <div className="bg-gradient-to-br from-primary-600 to-primary-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group hover:scale-[1.02] transition-transform cursor-pointer border border-primary-500/20">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <Play size={100} />
                         </div>
                         <div className="relative z-10">
-                            <span className="inline-block px-3 py-1 bg-white/20 rounded-lg text-xs font-bold mb-3 backdrop-blur-sm">PROXIMO TREINO</span>
-                            <h2 className="text-2xl font-bold mb-1">{nextWorkout.name}</h2>
+                            <span className="inline-block px-3 py-1 bg-white/10 rounded-lg text-xs font-bold mb-3 backdrop-blur-sm border border-white/10 font-display tracking-wider">PRÓXIMO TREINO</span>
+                            <h2 className="text-2xl font-bold mb-1 font-display">{nextWorkout.name}</h2>
                             <p className="text-primary-100 text-sm mb-4">{nextWorkout.focus || 'Geral'}</p>
 
                             <button
                                 onClick={() => navigate(`/workout/${nextWorkout.id}`)}
-                                className="bg-white text-primary-700 font-bold py-3 px-6 rounded-xl w-full flex items-center justify-center gap-2 shadow-xl hover:bg-slate-50 transition-colors"
+                                className="bg-white text-primary-950 font-bold py-3 px-6 rounded-xl w-full flex items-center justify-center gap-2 shadow-xl hover:bg-primary-50 transition-colors"
                             >
                                 <Play size={20} fill="currentColor" />
                                 Iniciar Treino
@@ -110,9 +110,9 @@ const StudentDashboard: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-slate-800 rounded-2xl p-6 text-center border border-slate-700">
-                        <p className="text-slate-400 mb-2">Nenhum treino agendado.</p>
-                        <p className="text-xs text-slate-500">Aguarde seu treinador enviar um programa.</p>
+                    <div className="bg-surface-800 rounded-2xl p-6 text-center border border-white/5">
+                        <p className="text-surface-400 mb-2">Nenhum treino agendado.</p>
+                        <p className="text-xs text-surface-500">Aguarde seu treinador enviar um programa.</p>
                     </div>
                 )}
             </div>
@@ -120,35 +120,35 @@ const StudentDashboard: React.FC = () => {
             {/* Quick Stats / History Preview */}
             <div className="p-6 space-y-6">
                 <div className="flex justify-between items-center">
-                    <h3 className="text-white font-bold text-lg">Essa Semana</h3>
-                    <span className="text-slate-500 text-xs">Ver Histórico</span>
+                    <h3 className="text-white font-bold text-lg font-display">Essa Semana</h3>
+                    <span className="text-surface-500 text-xs hover:text-white cursor-pointer transition-colors">Ver Histórico</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                    <div className="bg-surface-900 border border-white/5 p-4 rounded-xl hover:border-primary-500/20 transition-colors group">
                         <div className="flex items-center gap-2 text-primary-400 mb-2">
-                            <Calendar size={18} />
-                            <span className="text-xs font-bold uppercase">Frequência</span>
+                            <Calendar size={18} className="group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-bold uppercase tracking-wider">Frequência</span>
                         </div>
-                        <p className="text-2xl font-bold text-white">0 <span className="text-sm text-slate-500 font-normal">/ 4</span></p>
+                        <p className="text-2xl font-bold text-white font-display">0 <span className="text-sm text-surface-500 font-normal font-sans">/ 4</span></p>
                     </div>
-                    <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                    <div className="bg-surface-900 border border-white/5 p-4 rounded-xl hover:border-emerald-500/20 transition-colors group">
                         <div className="flex items-center gap-2 text-emerald-400 mb-2">
-                            <History size={18} />
-                            <span className="text-xs font-bold uppercase">Volume</span>
+                            <History size={18} className="group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-bold uppercase tracking-wider">Volume</span>
                         </div>
-                        <p className="text-2xl font-bold text-white">0 <span className="text-sm text-slate-500 font-normal">kg</span></p>
+                        <p className="text-2xl font-bold text-white font-display">0 <span className="text-sm text-surface-500 font-normal font-sans">kg</span></p>
                     </div>
                 </div>
             </div>
 
             {/* Bottom Nav */}
-            <div className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 flex justify-around items-center z-50">
+            <div className="fixed bottom-0 left-0 right-0 bg-surface-900/90 backdrop-blur-md border-t border-white/5 p-4 flex justify-around items-center z-50 safe-area-bottom">
                 <button className="flex flex-col items-center gap-1 text-primary-500">
                     <Calendar size={24} />
                     <span className="text-[10px] font-medium">Treinos</span>
                 </button>
-                <button className="flex flex-col items-center gap-1 text-slate-500 hover:text-white transition-colors">
+                <button className="flex flex-col items-center gap-1 text-surface-500 hover:text-white transition-colors">
                     <History size={24} />
                     <span className="text-[10px] font-medium">Histórico</span>
                 </button>

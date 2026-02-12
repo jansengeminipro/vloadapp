@@ -55,12 +55,13 @@ const NormalityBar: React.FC<NormalityBarProps> = ({
     // Vamos usar cores suaves de background e um marcador forte.
 
     // Cores de fundo das seções
-    const lowColor = 'bg-slate-700'; // Baixo
-    const normalColor = 'bg-slate-600'; // Normal
-    const highColor = 'bg-slate-700'; // Alto
+    // Cores de fundo das seções
+    const lowColor = 'bg-surface-700'; // Baixo
+    const normalColor = 'bg-surface-600'; // Normal
+    const highColor = 'bg-surface-700'; // Alto
 
     // Cor do marcador baseada na classificação ou posição
-    let markerColor = 'bg-slate-400';
+    let markerColor = 'bg-surface-400';
     if (value < lowThreshold) {
         markerColor = isHigherBetter ? 'bg-red-500' : 'bg-yellow-500'; // Pouco músculo (ruim) ou Pouca gordura (atenção)
     } else if (value <= highThreshold) {
@@ -71,17 +72,17 @@ const NormalityBar: React.FC<NormalityBarProps> = ({
 
     return (
         <div className="w-full">
-            <div className="flex justify-between text-[10px] text-slate-500 font-bold uppercase mb-1.5">
+            <div className="flex justify-between text-[10px] text-surface-500 font-bold uppercase mb-1.5">
                 <span style={{ width: `${lowWidth}%` }} className="text-left pl-1">Baixo</span>
                 <span style={{ width: `${normalWidth}%` }} className="text-center">Normal</span>
                 <span style={{ width: `${highWidth}%` }} className="text-right pr-1">Alto</span>
             </div>
 
-            <div className="h-4 w-full flex rounded-lg overflow-hidden relative bg-slate-900 border border-slate-800">
+            <div className="h-4 w-full flex rounded-lg overflow-hidden relative bg-surface-900 border border-white/5">
                 {/* Background Sections (Track) */}
                 <div className="absolute inset-0 flex w-full opacity-20">
-                    <div style={{ width: `${lowWidth}%` }} className={`h-full ${lowColor} border-r border-slate-950`} />
-                    <div style={{ width: `${normalWidth}%` }} className={`h-full ${normalColor} border-r border-slate-950`} />
+                    <div style={{ width: `${lowWidth}%` }} className={`h-full ${lowColor} border-r border-surface-950`} />
+                    <div style={{ width: `${normalWidth}%` }} className={`h-full ${normalColor} border-r border-surface-950`} />
                     <div style={{ width: `${highWidth}%` }} className={`h-full ${highColor}`} />
                 </div>
 
@@ -99,7 +100,7 @@ const NormalityBar: React.FC<NormalityBarProps> = ({
             {formatValue(value) !== '' && (
                 <div className="relative h-4 mt-1">
                     <div
-                        className="absolute text-[10px] font-bold text-white transition-all duration-500 bg-slate-800 px-1.5 rounded transform -translate-x-1/2 -top-1"
+                        className="absolute text-[10px] font-bold text-white transition-all duration-500 bg-surface-800 px-1.5 rounded transform -translate-x-1/2 -top-1 border border-white/5"
                         style={{ left: `${valuePercent}%` }}
                     >
                         {formatValue(value)}

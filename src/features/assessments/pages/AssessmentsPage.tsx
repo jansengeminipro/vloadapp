@@ -6,7 +6,7 @@ import { Client } from '@/shared/types';
 import { Activity, Search, Users, CheckCircle, ChevronRight, ChevronLeft, LayoutList } from 'lucide-react';
 import { AssessmentFactory, AVAILABLE_TESTS, TEST_CATEGORIES } from '../domain/strategies';
 import AssessmentFormBuilder from '../components/AssessmentFormBuilder';
-import { saveAssessment } from '@/services';
+import { saveAssessment } from '../api/assessmentsRepository';
 import { Assessment, AnalysisResult } from '../domain/models';
 
 type Step = 'select-client' | 'select-tests' | 'execute';
@@ -170,23 +170,23 @@ const AssessmentsPage: React.FC = () => {
         return (
             <div className="p-8 max-w-5xl mx-auto">
                 <div className="flex items-center gap-3 mb-2">
-                    <button onClick={() => navigate(-1)} className="p-1 -ml-2 text-slate-400 hover:text-white transition-colors">
+                    <button onClick={() => navigate(-1)} className="p-1 -ml-2 text-surface-400 hover:text-white transition-colors">
                         <ChevronLeft size={24} />
                     </button>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-3 font-display tracking-tight">
                         <Activity className="text-primary-500" /> Nova Avaliação
                     </h1>
                 </div>
-                <p className="text-slate-400 mb-8 ml-8">Selecione o aluno para iniciar um teste ou bateria de testes.</p>
+                <p className="text-surface-400 mb-8 ml-8">Selecione o aluno para iniciar um teste ou bateria de testes.</p>
 
                 <div className="relative mb-6">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-500" size={20} />
                     <input
                         type="text"
                         placeholder="Buscar aluno..."
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 pl-10 text-white focus:border-primary-500 focus:outline-none"
+                        className="w-full bg-surface-900 border border-white/5 rounded-xl py-3 pl-10 text-white focus:border-primary-500 focus:outline-none placeholder-surface-600 focus:ring-1 focus:ring-primary-500 transition-all"
                     />
                 </div>
 
@@ -195,9 +195,9 @@ const AssessmentsPage: React.FC = () => {
                         <button
                             key={client.id}
                             onClick={() => handleClientSelect(client)}
-                            className="flex items-center gap-4 p-4 bg-slate-900 border border-slate-800 rounded-xl hover:border-primary-500 hover:bg-slate-800 transition-all group text-left"
+                            className="flex items-center gap-4 p-4 bg-surface-800 border border-white/5 rounded-xl hover:border-primary-500/50 hover:bg-surface-800 hover:shadow-lg hover:shadow-primary-500/5 transition-all group text-left hover:-translate-y-1 duration-200"
                         >
-                            <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 font-bold group-hover:bg-primary-500/20 group-hover:text-primary-500 transition-colors">
+                            <div className="w-12 h-12 rounded-full bg-surface-700 flex items-center justify-center text-surface-300 font-bold group-hover:bg-primary-500/20 group-hover:text-primary-500 transition-colors border border-surface-600">
                                 {client.avatarUrl ? (
                                     <img src={client.avatarUrl} alt={client.name} className="w-full h-full rounded-full object-cover" />
                                 ) : (
@@ -205,10 +205,10 @@ const AssessmentsPage: React.FC = () => {
                                 )}
                             </div>
                             <div>
-                                <h3 className="font-bold text-white group-hover:text-primary-400 transition-colors">{client.name}</h3>
-                                <div className="text-xs text-slate-500">Último treino: {client.lastWorkout || '-'}</div>
+                                <h3 className="font-bold text-white group-hover:text-primary-400 transition-colors font-display">{client.name}</h3>
+                                <div className="text-xs text-surface-500">Último treino: {client.lastWorkout || '-'}</div>
                             </div>
-                            <ChevronRight className="ml-auto text-slate-600 group-hover:translate-x-1 transition-transform" />
+                            <ChevronRight className="ml-auto text-surface-600 group-hover:translate-x-1 transition-transform group-hover:text-primary-500" />
                         </button>
                     ))}
                 </div>
@@ -227,18 +227,18 @@ const AssessmentsPage: React.FC = () => {
                             setStep('select-client');
                         }
                     }}
-                    className="text-sm text-slate-500 hover:text-white mb-6 flex items-center gap-1"
+                    className="text-sm text-surface-500 hover:text-white mb-6 flex items-center gap-1 transition-colors"
                 >
                     <ChevronLeft size={14} /> {searchParams.get('clientId') ? 'Voltar ao Perfil' : 'Voltar (Seleção de Aluno)'}
                 </button>
 
                 <div className="flex items-center gap-4 mb-8">
-                    <div className="w-12 h-12 rounded-full bg-primary-500/10 flex items-center justify-center text-primary-500 font-bold text-xl">
+                    <div className="w-12 h-12 rounded-full bg-primary-500/10 border border-primary-500/20 flex items-center justify-center text-primary-500 font-bold text-xl">
                         {(selectedClient?.name?.substring(0, 2) || '??').toUpperCase()}
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-white">Montar Bateria</h2>
-                        <p className="text-slate-400">Quais testes {selectedClient?.name ? selectedClient.name.split(' ')[0] : 'o aluno'} fará hoje?</p>
+                        <h2 className="text-2xl font-bold text-white font-display tracking-tight">Montar Bateria</h2>
+                        <p className="text-surface-400">Quais testes {selectedClient?.name ? selectedClient.name.split(' ')[0] : 'o aluno'} fará hoje?</p>
                     </div>
                 </div>
 
@@ -247,7 +247,7 @@ const AssessmentsPage: React.FC = () => {
                         const tests = AVAILABLE_TESTS.filter(t => t.category === cat.id);
                         if (tests.length === 0) return null;
                         return (
-                            <div key={cat.id} className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
+                            <div key={cat.id} className="bg-surface-900/50 border border-white/5 rounded-xl p-6 shadow-sm">
                                 <h3 className="text-sm font-bold text-primary-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <LayoutList size={16} /> {cat.label}
                                 </h3>
@@ -258,9 +258,9 @@ const AssessmentsPage: React.FC = () => {
                                             <button
                                                 key={test.id}
                                                 onClick={() => toggleTest(test.id)}
-                                                className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all ${isSelected
-                                                    ? 'bg-primary-900/20 border-primary-500/50 text-white'
-                                                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'
+                                                className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all duration-200 ${isSelected
+                                                    ? 'bg-primary-500/10 border-primary-500/50 text-white shadow-md shadow-primary-500/5'
+                                                    : 'bg-surface-950 border-white/5 text-surface-400 hover:border-surface-600 hover:text-surface-200'
                                                     }`}
                                             >
                                                 <span className="font-medium text-sm">{test.label}</span>
@@ -274,11 +274,11 @@ const AssessmentsPage: React.FC = () => {
                     })}
                 </div>
 
-                <div className="mt-8 flex justify-end pt-6 border-t border-slate-800">
+                <div className="mt-8 flex justify-end pt-6 border-t border-white/5">
                     <button
                         onClick={startBattery}
                         disabled={selectedTests.length === 0}
-                        className="bg-primary-600 hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg flex items-center gap-3 transition-all transform hover:scale-105"
+                        className="bg-primary-600 hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg shadow-primary-500/20 flex items-center gap-3 transition-all transform hover:scale-105 active:scale-95 duration-200"
                     >
                         Iniciar Bateria ({selectedTests.length}) <ChevronRight />
                     </button>
@@ -296,22 +296,23 @@ const AssessmentsPage: React.FC = () => {
     const currentResult = results[currentTestId];
 
     return (
+
         <div className="p-6 md:p-8 max-w-4xl mx-auto h-screen flex flex-col">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <div className="text-xs font-bold text-slate-500 uppercase mb-1">
+                    <div className="text-xs font-bold text-surface-500 uppercase mb-1">
                         Teste {currentTestIndex + 1} de {selectedTests.length}
                     </div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-3 font-display tracking-tight">
                         {strategy.getTitle()}
                     </h2>
                 </div>
-                <div className="bg-slate-900 px-4 py-2 rounded-full border border-slate-800">
-                    <span className="text-slate-400 text-sm font-medium">{selectedClient?.name}</span>
+                <div className="bg-surface-900 px-4 py-2 rounded-full border border-white/5">
+                    <span className="text-surface-400 text-sm font-medium">{selectedClient?.name}</span>
                 </div>
             </div>
 
-            <div className="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl overflow-y-auto">
+            <div className="flex-1 bg-surface-900 border border-white/5 rounded-2xl p-6 md:p-8 shadow-2xl overflow-y-auto">
                 <AssessmentFormBuilder
                     schema={schema}
                     values={formsData[currentTestId] || {}}
@@ -323,29 +324,29 @@ const AssessmentsPage: React.FC = () => {
 
                 {/* Results Display Interface within execution */}
                 {currentResult && (
-                    <div className="mt-8 p-6 bg-slate-950 rounded-xl border border-slate-800 transition-all duration-300">
+                    <div className="mt-8 p-6 bg-surface-950 rounded-xl border border-white/5 transition-all duration-300 animate-in fade-in slide-in-from-bottom-2">
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="p-2 bg-emerald-500/10 rounded-full text-emerald-500">
+                            <div className="p-2 bg-emerald-500/10 rounded-full text-emerald-500 border border-emerald-500/20">
                                 <Activity size={20} />
                             </div>
                             <div>
-                                <div className="text-xs text-slate-500 uppercase font-bold">Classificação</div>
-                                <div className="text-xl font-black text-white">{currentResult.classification}</div>
+                                <div className="text-xs text-surface-500 uppercase font-bold">Classificação</div>
+                                <div className="text-xl font-black text-white font-display">{currentResult.classification}</div>
                             </div>
                             <div className="ml-auto text-right">
-                                <div className="text-xs text-slate-500 uppercase font-bold">Score</div>
-                                <div className="text-xl font-black text-primary-500">{currentResult.score}</div>
+                                <div className="text-xs text-surface-500 uppercase font-bold">Score</div>
+                                <div className="text-xl font-black text-primary-500 font-display">{currentResult.score}</div>
                             </div>
                         </div>
                     </div>
                 )}
             </div>
 
-            <div className="mt-6 flex justify-between items-center bg-slate-950 p-4 border-t border-slate-900 sticky bottom-0">
+            <div className="mt-6 flex justify-between items-center bg-surface-950 p-4 border-t border-white/5 sticky bottom-0 z-20">
                 {!currentResult ? (
                     <button
                         onClick={handleCalculateCurrent}
-                        className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-bold transition-colors w-full md:w-auto"
+                        className="bg-surface-800 hover:bg-surface-700 text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 w-full md:w-auto hover:text-primary-400 border border-white/5"
                     >
                         Calcular
                     </button>
@@ -359,14 +360,14 @@ const AssessmentsPage: React.FC = () => {
                                     return next;
                                 });
                             }}
-                            className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-6 py-3 rounded-xl font-medium transition-colors"
+                            className="bg-surface-800 hover:bg-surface-700 text-surface-300 px-6 py-3 rounded-xl font-medium transition-colors border border-white/5"
                         >
                             Recalcular
                         </button>
                         <button
                             onClick={handleNext}
                             disabled={saving}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-900/20 transition-all flex items-center gap-2"
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 hover:scale-105 active:scale-95 duration-200"
                         >
                             {saving ? 'Salvando...' : currentTestIndex < selectedTests.length - 1 ? 'Próximo Teste' : 'Finalizar Bateria'}
                             {!saving && <ChevronRight size={18} />}
