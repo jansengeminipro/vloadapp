@@ -32,7 +32,6 @@ import { SessionHeader } from '../components/session/SessionHeader';
 import { ExerciseNavigation } from '../components/session/ExerciseNavigation';
 import { ExerciseCard } from '../components/session/ExerciseCard';
 import { SetList } from '../components/session/SetList';
-import { SessionAdaptation } from '../components/session/SessionAdaptation';
 
 // --- Main Component ---
 const WorkoutSession: React.FC = () => {
@@ -45,21 +44,13 @@ const WorkoutSession: React.FC = () => {
   // --- Hooks ---
   const timer = useSessionTimer();
   const session = useSessionState({
-    templateId,
-    initialEditMode: searchParams.get('mode') === 'adapt'
+    templateId
   });
   const history = useExerciseHistory();
 
   // Modal States
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
-
-  // Force sync with URL param (Robust for HashRouter)
-  useEffect(() => {
-    if (searchParams.get('mode') === 'adapt' || window.location.hash.includes('mode=adapt')) {
-      session.setIsEditing(true);
-    }
-  }, [searchParams]);
 
   const handleFinish = async () => {
     if (!session.template || !clientId || !user) return;
@@ -106,16 +97,6 @@ const WorkoutSession: React.FC = () => {
     }
   };
 
-  const handleCancelAdaptation = () => {
-    const mode = searchParams.get('mode');
-    if (mode === 'adapt') {
-      if (clientId) navigate(`/clients/${clientId}?tab=program`);
-      else navigate(-1);
-    } else {
-      session.setIsEditing(false);
-    }
-  };
-
   // --- Loading States ---
   if (session.isLoadingTemplate) {
     return (
@@ -136,25 +117,6 @@ const WorkoutSession: React.FC = () => {
     );
   }
 
-  // --- Editing Mode ---
-  if (session.isEditing) {
-    return (
-      <SessionAdaptation
-        template={session.template}
-        onDragEnd={session.handleOnDragEnd}
-        onRemoveExercise={session.handleRemoveExercise}
-        onUpdateExercise={session.handleUpdateExercise}
-        onSwapAlternative={session.handleSwapAlternative}
-        onCancel={handleCancelAdaptation}
-        onComplete={() => session.setIsEditing(false)}
-        onAddExercise={session.handleAddExercise}
-        onUpdateTarget={session.handleUpdateTarget}
-        onReplaceExercise={session.handleReplaceExercise}
-        onAddAlternative={session.handleAddAlternative}
-      />
-    );
-  }
-
   // --- Session Mode ---
   const { currentExercise, currentLogs } = session;
   if (!currentExercise) return null;
@@ -167,7 +129,6 @@ const WorkoutSession: React.FC = () => {
         templateName={session.template.name}
         elapsedTime={timer.formatTime(timer.elapsedTime)}
         clientId={clientId || ''}
-        onToggleEdit={() => session.setIsEditing(true)}
         onFinish={handleFinish}
       />
 

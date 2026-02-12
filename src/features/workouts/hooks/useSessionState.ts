@@ -11,7 +11,6 @@ export interface SetDraft {
 
 interface UseSessionStateProps {
     templateId: string | null;
-    initialEditMode?: boolean;
 }
 
 interface UseSessionStateReturn {
@@ -32,19 +31,14 @@ interface UseSessionStateReturn {
     addSet: () => void;
     removeSet: (setIndex: number) => void;
 
-    // Editing Mode
-    isEditing: boolean;
-    setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-
     // Adaptation
     handleAddExercise: (exercise: Exercise) => void;
     handleRemoveExercise: (index: number) => void;
-    handleReplaceExercise: (index: number, exercise: Exercise) => void;
+    handleReplaceExercise: (index: number, exercise: Exercise, preserveTargets?: boolean) => void;
     handleUpdateExercise: (index: number, updatedExercise: WorkoutExercise) => void;
     handleUpdateTarget: (index: number, field: keyof WorkoutExercise, value: any) => void;
     handleAddAlternative: (index: number, exercise: Exercise) => void;
     handleSwapAlternative: (exerciseIndex: number, alternativeIndex: number) => void;
-    handleOnDragEnd: (result: any) => void;
 
     // Current Exercise Helpers
     currentExercise: WorkoutExercise | undefined;
@@ -54,7 +48,7 @@ interface UseSessionStateReturn {
 /**
  * Hook to manage the core session state: template, logs, navigation, and adaptation.
  */
-export const useSessionState = ({ templateId, initialEditMode = false }: UseSessionStateProps): UseSessionStateReturn => {
+export const useSessionState = ({ templateId }: UseSessionStateProps): UseSessionStateReturn => {
     // Template State
     const [template, setTemplate] = useState<WorkoutTemplate | undefined>(undefined);
     const [isLoadingTemplate, setIsLoadingTemplate] = useState(true);
@@ -64,9 +58,6 @@ export const useSessionState = ({ templateId, initialEditMode = false }: UseSess
 
     // Set Logs
     const [logs, setLogs] = useState<{ [exerciseIdx: number]: SetDraft[] }>({});
-
-    // Editing Mode
-    const [isEditing, setIsEditing] = useState(initialEditMode);
 
     // Fetch Template
     useEffect(() => {
@@ -309,20 +300,6 @@ export const useSessionState = ({ templateId, initialEditMode = false }: UseSess
         });
     }, [template]);
 
-    const handleOnDragEnd = useCallback((result: any) => {
-        if (!result.destination || !template) return;
-
-        const items = Array.from(template.exercises);
-        const [reorderedItem] = items.splice(result.source.index, 1);
-        items.splice(result.destination.index, 0, reorderedItem);
-
-        setLogs({}); // Reset logs to ensure correct state mapping
-        setTemplate({
-            ...template,
-            exercises: items
-        });
-    }, [template]);
-
     // Derived Values
     const currentExercise = template?.exercises[currentExerciseIndex];
     const currentLogs = logs[currentExerciseIndex] || [];
@@ -339,8 +316,6 @@ export const useSessionState = ({ templateId, initialEditMode = false }: UseSess
         toggleSetComplete,
         addSet,
         removeSet,
-        isEditing,
-        setIsEditing,
         handleAddExercise,
         handleRemoveExercise,
         handleReplaceExercise,
@@ -348,7 +323,6 @@ export const useSessionState = ({ templateId, initialEditMode = false }: UseSess
         handleUpdateTarget,
         handleAddAlternative, // Exposed
         handleSwapAlternative, // Exposed
-        handleOnDragEnd,
         currentExercise,
         currentLogs
     };

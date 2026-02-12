@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Settings } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 interface SessionHeaderProps {
     templateName: string;
     elapsedTime: string;
     clientId: string;
-    onToggleEdit: () => void;
     onFinish: () => void;
 }
 
@@ -14,7 +13,6 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
     templateName,
     elapsedTime,
     clientId,
-    onToggleEdit,
     onFinish
 }) => {
     return (
@@ -26,13 +24,6 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
             <div className="flex-1 flex flex-col items-center justify-center mx-2">
                 <div className="flex items-center gap-2 justify-center w-full">
                     <h2 className="text-white font-bold text-sm truncate max-w-[160px]">{templateName}</h2>
-                    <button
-                        onClick={onToggleEdit}
-                        className="text-surface-500 hover:text-primary-400 hover:bg-primary-500/10 transition-all p-1.5 rounded-lg group"
-                        title="Adaptar Treino (Editar)"
-                    >
-                        <Settings size={16} className="group-hover:rotate-45 transition-transform duration-300" />
-                    </button>
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
